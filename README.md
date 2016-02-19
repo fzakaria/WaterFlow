@@ -27,7 +27,7 @@ and [Glisten](https://github.com/Netflix/glisten/)
 4. Access to Amazon SWF with a domain set up
 5. Understanding of Amazon Simple Workflow concepts and the Amazon AWS SDK for Java
 
-```
+```xml
 <dependency>
     <groupId>com.github.fzakaria</groupId>
     <artifactId>WaterFlow</artifactId>
@@ -47,7 +47,7 @@ Take a look at the `ExamplesIntegrationTest.java` file.
 # Show me some code !
 > Talk is cheap, show me some code
 
-```
+```java
 @Value.Immutable
 public abstract  class ExampleActivities extends Activities {
     @ActivityMethod(name = "Addition", version = "1.0")
@@ -57,7 +57,7 @@ public abstract  class ExampleActivities extends Activities {
 }
 ```
 
-```
+```java
 @Value.Immutable
 public abstract class SimpleWorkflow extends Workflow<Integer, Integer> {
 
