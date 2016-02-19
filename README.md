@@ -15,7 +15,7 @@ and [Glisten](https://github.com/Netflix/glisten/)
 
 1. JDK8 target - heavy use of new JDK8 features such as Optional and Streams make for simpler code
 2. Allow arbitrary types to be passed as input or sent as output for a given Activity through the use of a `DataConverter`
-3. Deciders are written through asynchronous interfaces - `CompletionStage` - without any magic!
+3. Deciders are written through asynchronous interfaces - [CompletionStage](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html) - without any magic!
 4. Heavy **Heavy** use of of the [Immutables](https://immutables.github.io/) library
 
 
