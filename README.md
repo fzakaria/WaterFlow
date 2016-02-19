@@ -37,12 +37,12 @@ and [Glisten](https://github.com/Netflix/glisten/)
 
 # Samples
 
-Several examples have been included within the `com.github.fzakaria.waterflow.example` package that demonstrate the full
+Several examples have been included within the [com.github.fzakaria.waterflow.example](src/test/java/com/github/fzakaria/waterflow/example/) package that demonstrate the full
 range of features offered by the framework.
 
 You can use them as a learning example or even run them yourself.
 Included are some *integration tests* that verify that the workflows perform their expected operations.
-Take a look at the `ExamplesIntegrationTest.java` file.
+Take a look at the [ExamplesIntegrationTest.java](src/test/java/com/github/fzakaria/waterflow/example/ExamplesIntegrationTest.java) file.
 
 # Show me some code !
 > Talk is cheap, show me some code
