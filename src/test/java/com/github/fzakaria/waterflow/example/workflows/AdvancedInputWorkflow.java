@@ -1,21 +1,24 @@
+/*
 package com.github.fzakaria.waterflow.example.workflows;
 
 import com.amazonaws.services.simpleworkflow.model.Decision;
 import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.action.ActivityAction;
 import com.github.fzakaria.waterflow.example.Config;
-import com.google.common.reflect.TypeToken;
-import lombok.Data;
+import com.github.fzakaria.waterflow.example.ImmutableConfig;
+import com.github.fzakaria.waterflow.immutable.Description;
+import org.immutables.value.Value;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.BiFunction;
 
 import static com.amazonaws.services.simpleworkflow.model.ChildPolicy.TERMINATE;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+
+*/
 /**
  * SWiFt Advanced 'Hello World' Sample.
  * This is very similar to {@link SimpleWorkflow} except it demonstrates the power of
@@ -23,18 +26,22 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  *
  * Step1 - Is an example of how an Activity may take more than 1 input of a complex type
  * Step 2 - Demonstrates passing a complex type'd Collection and returning Void
- */
-public class AdvancedInputWorkflow extends Workflow<AdvancedInputWorkflow.AdamAndEve, Void> {
+ *//*
 
-    @Data
-    public static class AdamAndEve {
-        public Animal adam;
-        public Animal eve;
-        public AdamAndEve() {
+@Value.Immutable
+public abstract class AdvancedInputWorkflow extends Workflow<AdvancedInputWorkflow.AdamAndEve, Void> {
 
-        }
+    public static void main(String[] args) {
+        Config config = ImmutableC.of();
+        Workflow<Integer, Integer> workflow = ImmutableAd.builder()
+                .domain(config.domain())
+                .taskList(config.taskList())
+                .executionStartToCloseTimeout(Duration.ofMinutes(5))
+                .taskStartToCloseTimeout(Duration.ofSeconds(30))
+                .childPolicy(TERMINATE)
+                .description(Description.of("A Simple Example Workflow")).build();
+        config.submit(workflow, 100);
     }
-
     public static void main(String[] args) {
         Config config = new Config();
         Workflow<AdvancedInputWorkflow.AdamAndEve, Void> workflow = new AdvancedInputWorkflow()
@@ -59,7 +66,9 @@ public class AdvancedInputWorkflow extends Workflow<AdvancedInputWorkflow.AdamAn
     final ActivityAction<Animal> step1 = new ActivityAction<>("step1", "Mate", "1.0", Animal.class);
     final ActivityAction<Void> step2 = new ActivityAction<>("step3", "Echo", "1.0", Void.class);
 
-    /** Start the workflow by submitting it to SWF. */
+    */
+/** Start the workflow by submitting it to SWF. *//*
+
     public AdvancedInputWorkflow() {
         super("Advanced Workflow", "1.0", AdamAndEve.class, Void.class);
 
@@ -82,4 +91,4 @@ public class AdvancedInputWorkflow extends Workflow<AdvancedInputWorkflow.AdamAn
 
 
     }
-}
+}*/

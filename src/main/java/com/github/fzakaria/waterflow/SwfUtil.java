@@ -1,57 +1,28 @@
 package com.github.fzakaria.waterflow;
 
-import lombok.experimental.UtilityClass;
 
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import com.amazonaws.services.simpleworkflow.model.CancelTimerDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.CancelWorkflowExecutionDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.CompleteWorkflowExecutionDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.ContinueAsNewWorkflowExecutionDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.Decision;
+import com.amazonaws.services.simpleworkflow.model.DecisionType;
+import com.amazonaws.services.simpleworkflow.model.FailWorkflowExecutionDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.RecordMarkerDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.RequestCancelActivityTaskDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.RequestCancelExternalWorkflowExecutionDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.ScheduleActivityTaskDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.SignalExternalWorkflowExecutionDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.StartChildWorkflowExecutionDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.StartTimerDecisionAttributes;
 
-import static com.github.fzakaria.waterflow.SwfConstants.*;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 
 /**
  * A utility class with some helper methods when working with SimpleWorkflow
  */
-@UtilityClass
-public class SwfUtil {
-
-    /**
-     * Calc a SWF timeout string.
-     * Pass null unit or duration &lt;= 0 for a timeout of NONE.
-     *
-     * @param unit time unit to use with duration
-     * @param duration duration converted to seconds
-     *
-     * @see #calcTimeoutOrYear(TimeUnit, long)
-     */
-    public static String calcTimeoutOrNone(TimeUnit unit, long duration) {
-        return unit == null || duration < 1 ? SWF_TIMEOUT_NONE : valueOf(unit.toSeconds(duration));
-    }
-
-    /**
-     * Calc a SWF timeout string.
-     * Pass null unit or duration &lt;= 0 for a timeout of 365 days.
-     * <p/>
-     * Some SWF timeouts, specifically workflow execution start to close timeouts cannot be set to "NONE".
-     * Instead a maximum duration of 365 days is used for the default.
-     *
-     * @param unit time unit to use with duration
-     * @param duration duration converted to seconds
-     *
-     * @see #calcTimeoutOrNone(TimeUnit, long)
-     */
-    public static String calcTimeoutOrYear(TimeUnit unit, long duration) {
-        return unit == null || duration < 1 ? SWF_TIMEOUT_YEAR : valueOf(unit.toSeconds(duration));
-    }
-
-
-    /**
-     * Combine a name and version into a single string for easier indexing in maps, etc.
-     * In SWF registered workflows and activities are identified by the combination of name and version.
-     */
-    public static String makeKey(String name, String version) {
-        return format("%s-%s", name, version);
-    }
+public final class SwfUtil {
 
     public static String assertMaxLength(String input, int max) {
         if (input.length() > max) {
@@ -121,31 +92,52 @@ public class SwfUtil {
     }
 
     /**
-     * Make a unique and valid workflowId.
-     * Replaces bad characters and whitespace, appends a random int, and trims to {@link MAX_ID_LENGTH}, which also makes it easy for amazon cli use.
-     *
-     * @param workflowName name of workflow.
-     *
-     * @return unique workflowId
+     * Create a nice log message based on the {@link DecisionType} for the given decision.
      */
-    public static String createUniqueWorkflowId(String workflowName) {
-        String name = replaceUnsafeNameChars(workflowName);
-        String randomize = format(".%010d", ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE));
-        name = trimToMaxLength(name, MAX_ID_LENGTH - randomize.length());
-        return assertValidSwfValue(name + randomize);
+    public static String logNiceDecision(Decision decision) {
+        String decisionType = decision.getDecisionType();
+        switch (DecisionType.valueOf(decision.getDecisionType())) {
+            case ScheduleActivityTask:
+                ScheduleActivityTaskDecisionAttributes a1 = decision.getScheduleActivityTaskDecisionAttributes();
+                return format("%s['%s' '%s': %s %s]", decisionType, a1.getActivityId(), a1.getActivityType().getName(), a1.getInput(), a1.getControl());
+            case CompleteWorkflowExecution:
+                CompleteWorkflowExecutionDecisionAttributes a2 = decision.getCompleteWorkflowExecutionDecisionAttributes();
+                return format("%s[%s]", decisionType, a2.getResult());
+            case FailWorkflowExecution:
+                FailWorkflowExecutionDecisionAttributes a3 = decision.getFailWorkflowExecutionDecisionAttributes();
+                return format("%s[%s %s]", decisionType, a3.getReason(), a3.getDetails());
+            case CancelWorkflowExecution:
+                CancelWorkflowExecutionDecisionAttributes a4 = decision.getCancelWorkflowExecutionDecisionAttributes();
+                return format("%s[%s]", decisionType, a4.getDetails());
+            case ContinueAsNewWorkflowExecution:
+                ContinueAsNewWorkflowExecutionDecisionAttributes a5 = decision.getContinueAsNewWorkflowExecutionDecisionAttributes();
+                return format("%s[%s]", decisionType, a5.getInput());
+            case RecordMarker:
+                RecordMarkerDecisionAttributes a6 = decision.getRecordMarkerDecisionAttributes();
+                return format("%s['%s': %s]", decisionType, a6.getMarkerName(), a6.getDetails());
+            case StartTimer:
+                StartTimerDecisionAttributes a7 = decision.getStartTimerDecisionAttributes();
+                return format("%s['%s': %s]", decisionType, a7.getTimerId(), a7.getControl());
+            case CancelTimer:
+                CancelTimerDecisionAttributes a8 = decision.getCancelTimerDecisionAttributes();
+                return format("%s['%s']", decisionType, a8.getTimerId());
+            case SignalExternalWorkflowExecution:
+                SignalExternalWorkflowExecutionDecisionAttributes a9 = decision.getSignalExternalWorkflowExecutionDecisionAttributes();
+                return format("%s['%s' wf='%s' runId='%s': '%s' '%s']", decisionType, a9.getSignalName(), a9.getWorkflowId(), a9.getRunId(), a9.getInput(), a9.getControl());
+            case RequestCancelExternalWorkflowExecution:
+                RequestCancelExternalWorkflowExecutionDecisionAttributes a10 = decision.getRequestCancelExternalWorkflowExecutionDecisionAttributes();
+                return format("%s[wf='%s' runId='%s': '%s']", decisionType, a10.getWorkflowId(), a10.getRunId(), a10.getControl());
+            case StartChildWorkflowExecution:
+                StartChildWorkflowExecutionDecisionAttributes a11 = decision.getStartChildWorkflowExecutionDecisionAttributes();
+                return format("%s['%s' '%s': '%s' '%s']", decisionType, a11.getWorkflowId(), a11.getWorkflowType().getName(), a11.getInput(), a11.getControl());
+            case RequestCancelActivityTask:
+                RequestCancelActivityTaskDecisionAttributes a12 = decision.getRequestCancelActivityTaskDecisionAttributes();
+                return format("%s[%s]", decisionType, a12.getActivityId());
+        }
+        return null;
     }
 
-    /**
-     * Replace disallowed name characters and whitespace with an underscore.
-     *
-     * @param string string to be fixed
-     *
-     * @return string with replacements
-     */
-    public static String replaceUnsafeNameChars(String string) {
-        return string.trim()
-                .replaceAll("\\s|[^\\w]", "_")
-                .replaceAll("arn", "Arn");
-    }
+
+
 
 }

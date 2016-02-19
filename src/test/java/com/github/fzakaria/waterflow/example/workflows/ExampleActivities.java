@@ -2,18 +2,19 @@ package com.github.fzakaria.waterflow.example.workflows;
 
 import com.github.fzakaria.waterflow.Activities;
 import com.github.fzakaria.waterflow.activity.ActivityMethod;
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
+import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Sample ExampleActivities showing a wide range of features.
  */
-@Slf4j
-public class ExampleActivities extends Activities {
+@Value.Immutable
+public abstract  class ExampleActivities extends Activities {
+
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     @ActivityMethod(name = "Sleep", version = "1.0")
     public Void sleep(Duration duration) {

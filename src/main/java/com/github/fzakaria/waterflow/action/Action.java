@@ -4,10 +4,8 @@ import com.github.fzakaria.waterflow.TaskType;
 import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.event.Event;
 import com.github.fzakaria.waterflow.event.EventState;
+import com.github.fzakaria.waterflow.immutable.ActionId;
 import com.google.common.reflect.TypeToken;
-import lombok.Data;
-import lombok.experimental.Accessors;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,27 +21,24 @@ import static java.lang.String.format;
  * Note: The name "Action" was chosen to avoid naming conflicts with the parallel SWF concept "Task".
  * Concept heavily based from <a href="https://bitbucket.org/clarioanalytics/services-swift">services-swift</a>
  */
-@Slf4j
-@Data
-@Accessors(fluent = true)
 public abstract class Action<OutputType>  {
 
     /**
      * The unique id of the action for the workflow.
      */
-    protected final String actionId;
+    public abstract ActionId actionId();
 
     /**
      * The output of the action's class.
      * If the Action doesn't emit a result, use {@link Void}
      */
-    protected final TypeToken<OutputType> outputType;
+    public abstract TypeToken<OutputType> outputType();
 
     /**
      * The workflow with which this action belongs to.
      * This is usually set in {@link Workflow#actions(Action...)}
      */
-    protected Workflow workflow;
+    public abstract Workflow<?,?> workflow();
 
     /**
      * Get the category of task this action belongs to.
@@ -56,39 +51,29 @@ public abstract class Action<OutputType>  {
      * Get the most recent event for this {@link Action}.
      * Events are filtered by {@link #actionId}
      */
-    protected Optional<Event> getCurrentEvent() {
-        return getEvents().stream().findFirst();
-    }
-
-    /**
-     * Events in reverse chronological order (most recent first)
-     * @return Workflow {@link Event} selected by {@link #actionId}
-     */
-    protected List<Event> getEvents() {
-        assertWorkflowSet();
-        List<Event> allEvents = workflow.events();
-        return allEvents.stream().filter(e -> Objects.equals(e.actionId(), actionId)).collect(Collectors.toList());
+    protected Optional<Event> getCurrentEvent(List<Event> events) {
+        return events.stream().filter(e -> Objects.equals(e.actionId(), actionId())).findFirst();
     }
 
     /**
      * Events in reverse chronological order
      * @return Workflow {@link Event} selected by {@link #actionId()} && {@link #taskType()} ()}
      */
-    protected List<Event> getTaskEvents() {
-        return getEvents().stream().filter(e -> e.task() == taskType()).collect(Collectors.toList());
+    protected List<Event> getTaskEvents(List<Event> events) {
+        return events.stream().filter(e -> e.task() == taskType()).collect(Collectors.toList());
     }
 
     /**
      * @return current state for this action.
      * @see EventState for details on how state is calculated
      */
-    protected EventState getState() {
-        Optional<Event> currentEvent = getCurrentEvent();
+    protected EventState getState(List<Event> events) {
+        Optional<Event> currentEvent = getCurrentEvent(events);
         return currentEvent.map(Event::state).orElse(NOT_STARTED);
     }
 
     protected void assertWorkflowSet() {
-        if (workflow == null) {
+        if (workflow() == null) {
             throw new IllegalStateException(format("%s has no associated workflow. Ensure all actions used by a workflow are added to the workflow.", toString()));
         }
     }

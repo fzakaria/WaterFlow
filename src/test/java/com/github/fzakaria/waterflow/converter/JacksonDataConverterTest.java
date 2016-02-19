@@ -3,14 +3,13 @@ package com.github.fzakaria.waterflow.converter;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class JacksonDataConverterTest {
 
-    private final JacksonDataConverter dataConverter = new JacksonDataConverter();
+    private final JacksonDataConverter dataConverter = ImmutableJacksonDataConverter.builder().build();
 
     @Test
     public void basicTypesSerializeDeserializeTest() {

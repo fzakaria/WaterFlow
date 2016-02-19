@@ -1,24 +1,33 @@
 package com.github.fzakaria.waterflow.poller;
 
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
-import com.amazonaws.services.simpleworkflow.model.*;
-
+import com.amazonaws.services.simpleworkflow.model.ActivityTask;
+import com.amazonaws.services.simpleworkflow.model.PollForActivityTaskRequest;
+import com.amazonaws.services.simpleworkflow.model.RecordActivityTaskHeartbeatRequest;
+import com.amazonaws.services.simpleworkflow.model.RegisterActivityTypeRequest;
+import com.amazonaws.services.simpleworkflow.model.RespondActivityTaskCompletedRequest;
+import com.amazonaws.services.simpleworkflow.model.RespondActivityTaskFailedRequest;
+import com.amazonaws.services.simpleworkflow.model.TaskList;
+import com.amazonaws.services.simpleworkflow.model.TypeAlreadyExistsException;
 import com.github.fzakaria.waterflow.Activities;
 import com.github.fzakaria.waterflow.activity.ActivityInvoker;
 import com.github.fzakaria.waterflow.activity.ActivityMethod;
+import com.github.fzakaria.waterflow.activity.ImmutableActivityInvoker;
 import com.github.fzakaria.waterflow.converter.DataConverter;
-import lombok.EqualsAndHashCode;
-import lombok.Value;
-import lombok.experimental.Accessors;
-import lombok.extern.slf4j.Slf4j;
+
+import com.github.fzakaria.waterflow.immutable.Domain;
+import com.github.fzakaria.waterflow.immutable.Key;
+import com.github.fzakaria.waterflow.immutable.Name;
+import com.github.fzakaria.waterflow.immutable.TaskListName;
+import com.google.common.collect.Maps;
+import org.immutables.value.Value;
 
 import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
-import static com.github.fzakaria.waterflow.SwfUtil.*;
 import static com.github.fzakaria.waterflow.SwfConstants.*;
+import static com.github.fzakaria.waterflow.SwfUtil.*;
+import static java.lang.String.format;
 /**
  * Polls for activities on a given domain and task list and executes them.
  * <p/>
@@ -32,18 +41,30 @@ import static com.github.fzakaria.waterflow.SwfConstants.*;
  *
  * @see BasePoller
  */
-@Slf4j
-@Value
-@EqualsAndHashCode(callSuper = true)
-@Accessors(fluent = true)
-public class ActivityPoller extends BasePoller {
-    private final Map<String, ActivityInvoker> activityMap = new LinkedHashMap<>();
+@Value.Immutable
+public abstract class ActivityPoller extends BasePoller {
 
-    private final DataConverter dataConverter;
+    public abstract List<Activities> activities();
 
-    public ActivityPoller(String id, String taskList, String domain, AmazonSimpleWorkflow swf, DataConverter dataConverter) {
-        super(id, taskList, domain, swf);
-        this.dataConverter = dataConverter;
+    public abstract DataConverter dataConverter();
+
+    @Value.Derived
+    public Map<Key, ActivityInvoker> activityInvokerMap() {
+        Map<Key, ActivityInvoker> activityInvokerMap = Maps.newHashMap();
+        for (Activities object : activities()) {
+            for (Method method : object.getClass().getMethods()) {
+                if (method != null && method.isAnnotationPresent(ActivityMethod.class)) {
+                    ActivityMethod activityMethod = method.getAnnotation(ActivityMethod.class);
+                    Key key = Key.of(activityMethod);
+                    log.info(format("add activity %s", key));
+                    ActivityInvoker activityInvoker = ImmutableActivityInvoker.builder().activityMethod(activityMethod)
+                            .dataConverter(dataConverter()).instance(object).method(method)
+                            .service(swf()).build();
+                    activityInvokerMap.put(key,activityInvoker);
+                }
+            }
+        }
+        return activityInvokerMap;
     }
 
     /**
@@ -52,12 +73,13 @@ public class ActivityPoller extends BasePoller {
      *
      * @see ActivityMethod
      */
-    public void registerSwfActivities() {
-        for (ActivityInvoker invoker : activityMap.values()) {
+    @Override
+    public void register() {
+        for (ActivityInvoker invoker : activityInvokerMap().values()) {
             ActivityMethod method = invoker.activityMethod();
-            String key = makeKey(method.name(), method.version());
+            Key key = Key.of(method);
             try {
-                swf.registerActivityType(createRegisterActivityType(domain, taskList, method));
+                swf().registerActivityType(createRegisterActivityType(domain(), taskList(), method));
                 log.info(format("Register activity succeeded %s", key));
             } catch (TypeAlreadyExistsException e) {
                 log.info(format("Register activity already exists %s", key));
@@ -65,27 +87,6 @@ public class ActivityPoller extends BasePoller {
                 String format = format("Register activity failed %s", key);
                 log.error(format, t);
                 throw new IllegalStateException(format, t);
-            }
-        }
-    }
-
-    /**
-     * Add objects with one or more methods annotated with {@link ActivityMethod}
-     * mirroring Activity Types registered on SWF with this poller's domain and task list.
-     *
-     * @param annotatedObjects objects with one or more methods annotated with {@link ActivityMethod}
-     */
-    public void addActivities(Activities... annotatedObjects) {
-        for (Activities object : annotatedObjects) {
-            for (Method method : object.getClass().getDeclaredMethods()) {
-                if (method != null && method.isAnnotationPresent(ActivityMethod.class)) {
-                    ActivityMethod activityMethod = method.getAnnotation(ActivityMethod.class);
-                    String key = makeKey(activityMethod.name(), activityMethod.version());
-                    log.info(format("add activity %s", key));
-                    ActivityInvoker activityInvoker = ActivityInvoker.builder().activityMethod(activityMethod)
-                            .dataConverter(dataConverter).instance(object).method(method).build();
-                    activityMap.put(key,activityInvoker);
-                }
             }
         }
     }
@@ -100,35 +101,34 @@ public class ActivityPoller extends BasePoller {
      * <li>Methods may issue zero or more {@link RecordActivityTaskHeartbeatRequest} calls while processing</li>
      * </ul>
      *
-     * @see #addActivities(Activities...)
      */
     @Override
     protected void poll() {
-        ActivityTask task = swf.pollForActivityTask(createPollForActivityTask(domain, taskList, getId()));
+        ActivityTask task = swf().pollForActivityTask(createPollForActivityTask(domain(), taskList(), name()));
 
         if (task.getTaskToken() == null) {
             return;
         }
 
         String input = task.getInput();
-        String key = makeKey(task.getActivityType().getName(), task.getActivityType().getVersion());
+        Key key = Key.of(task.getActivityType());
         try {
             log.debug("start: {}", task);
-            if (activityMap.containsKey(key)) {
-                String result = activityMap.get(key).invoke(task);
+            if (activityInvokerMap().containsKey(key)) {
+                String result = activityInvokerMap().get(key).invoke(task);
                 log.info("'{}' '{}' '{}' -> '{}'", task.getActivityId(), key, input, result);
-                swf.respondActivityTaskCompleted(createRespondActivityCompleted(task, result));
+                swf().respondActivityTaskCompleted(createRespondActivityCompleted(task, result));
             } else {
-                String reason = format("Activity '%s' not registered on poller %s", task, getId());
+                String reason = format("Activity '%s' not registered on poller %s", task, name());
                 log.error(reason);
-                swf.respondActivityTaskFailed(
+                swf().respondActivityTaskFailed(
                         createRespondActivityTaskFailed(task.getTaskToken(), reason, null)
                 );
             }
         } catch (Exception e) {
             log.error("'{}' '{}' '{}'", task.getActivityId(), key, input, e);
-            String details = dataConverter.toData(e);
-            swf.respondActivityTaskFailed(
+            String details = dataConverter().toData(e);
+            swf().respondActivityTaskFailed(
                     createRespondActivityTaskFailed(task.getTaskToken(), e.getMessage(), details)
             );
         }
@@ -136,10 +136,10 @@ public class ActivityPoller extends BasePoller {
 
 
 
-    public static RegisterActivityTypeRequest createRegisterActivityType(String domain, String taskList, ActivityMethod method) {
+    public static RegisterActivityTypeRequest createRegisterActivityType(Domain domain, TaskListName taskList, ActivityMethod method) {
         return new RegisterActivityTypeRequest()
-                .withDomain(domain)
-                .withDefaultTaskList(new TaskList().withName(taskList))
+                .withDomain(domain.value())
+                .withDefaultTaskList(new TaskList().withName(taskList.value()))
                 .withName(method.name())
                 .withVersion(method.version())
                 .withDescription(defaultIfEmpty(method.description(), null))
@@ -149,12 +149,12 @@ public class ActivityPoller extends BasePoller {
                 .withDefaultTaskScheduleToCloseTimeout(defaultIfEmpty(method.scheduleToCloseTimeout(), SWF_TIMEOUT_NONE));
     }
 
-    public static PollForActivityTaskRequest createPollForActivityTask(String domain, String taskList, String id) {
+    public static PollForActivityTaskRequest createPollForActivityTask(Domain domain, TaskListName taskList, Name name) {
         return new PollForActivityTaskRequest()
-                .withDomain(domain)
+                .withDomain(domain.value())
                 .withTaskList(new TaskList()
-                        .withName(taskList))
-                .withIdentity(id);
+                        .withName(taskList.value()))
+                .withIdentity(name.value());
     }
 
     public static RespondActivityTaskFailedRequest createRespondActivityTaskFailed(String taskToken, String reason, String details) {

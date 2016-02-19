@@ -7,10 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.Value;
-import lombok.experimental.Accessors;
+import org.immutables.value.Value;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -21,9 +19,8 @@ import java.lang.reflect.Type;
  * Default {@link ObjectMapper} is set with {@link com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping#OBJECT_AND_NON_CONCRETE}
  * which is absolutely necessary to serialize/deserialize complex POJOs
  */
-@Value
-@Accessors(fluent = true)
-public class JacksonDataConverter implements DataConverter {
+@Value.Immutable
+public abstract class JacksonDataConverter implements DataConverter {
 
 
     private static final ObjectMapper DEFAULT_MAPPER = new ObjectMapper();
@@ -34,21 +31,15 @@ public class JacksonDataConverter implements DataConverter {
         DEFAULT_MAPPER.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
-
-    private final ObjectMapper objectMapper;
-
-    public JacksonDataConverter() {
-        this(DEFAULT_MAPPER);
-    }
-
-    public JacksonDataConverter(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    @Value.Default
+    public ObjectMapper objectMapper() {
+        return DEFAULT_MAPPER;
     }
 
     @Override
     public String toData(Object input) throws DataConverterException {
         try {
-            return objectMapper.writeValueAsString(input);
+            return objectMapper().writeValueAsString(input);
         } catch (JsonProcessingException e) {
             throw new DataConverterException(e);
         }
@@ -57,7 +48,7 @@ public class JacksonDataConverter implements DataConverter {
     @Override
     public <T> T fromData(String input, Type type) throws DataConverterException {
         try {
-            return objectMapper.readValue(input, objectMapper.constructType(type));
+            return objectMapper().readValue(input, objectMapper().constructType(type));
         } catch (IOException e) {
             throw new DataConverterException(e);
         }

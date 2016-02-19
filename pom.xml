@@ -13,6 +13,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <slf4j.version>1.7.14</slf4j.version>
         <jackson.version>2.7.1</jackson.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
@@ -22,12 +23,24 @@
             <artifactId>aws-java-sdk-swf-libraries</artifactId>
         </dependency>
 
-        <!-- Project Lombok which provides some compile time facilities -->
+        <!-- http://immutables.github.io/getstarted.html -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.6</version>
+            <groupId>org.immutables</groupId>
+            <artifactId>value</artifactId>
+            <version>2.1.10</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.immutables</groupId>
+            <artifactId>builder</artifactId>
+            <version>2.1.10</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.1</version>
         </dependency>
 
         <!-- Logging -->
@@ -80,6 +93,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.jayway.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>1.7.0</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 
@@ -94,5 +114,63 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!-- Run annotation processors on src/main/java sources -->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <outputDirectory>target/generated-sources/annotations</outputDirectory>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>process-test</id>
+                        <goals>
+                            <goal>process-test</goal>
+                        </goals>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <outputDirectory>target/generated-sources-test/annotations</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Disable annotation processors during normal compilation -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-Xlint</arg>
+                    </compilerArgs>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

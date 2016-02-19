@@ -1,3 +1,4 @@
+/*
 package com.github.fzakaria.waterflow.example.workflows;
 
 import com.amazonaws.services.simpleworkflow.model.Decision;
@@ -12,10 +13,12 @@ import static com.amazonaws.services.simpleworkflow.model.ChildPolicy.TERMINATE;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+*/
 /**
  * This is a sample workflow that demonstrates how you can throw Throwables
  * <b>across</b> activities and have them propogated to the decider.
- */
+ *//*
+
 public class ThrowingWorkflow extends Workflow<Integer, Integer>  {
 
     public static void main(String[] args) {
@@ -36,7 +39,9 @@ public class ThrowingWorkflow extends Workflow<Integer, Integer>  {
     final ActivityAction<Integer> step3 = new ActivityAction<>("step3", "Activity Z", "1.0", Integer.class);
 
 
-    /** Start the workflow by submitting it to SWF. */
+    */
+/** Start the workflow by submitting it to SWF. *//*
+
     public ThrowingWorkflow() {
         super("ThrowingWorkflow Workflow", "1.0", Integer.class, Integer.class);
 
@@ -50,3 +55,4 @@ public class ThrowingWorkflow extends Workflow<Integer, Integer>  {
         return null;
     }
 }
+*/

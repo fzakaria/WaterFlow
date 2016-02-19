@@ -1,17 +1,21 @@
 package com.github.fzakaria.waterflow;
 
-import lombok.experimental.UtilityClass;
+import com.github.fzakaria.waterflow.immutable.Description;
+import com.github.fzakaria.waterflow.immutable.TaskListName;
 
+import java.time.Duration;
 import java.time.Period;
 import java.util.concurrent.TimeUnit;
 
 /**
  * This is a utility class to hold all the SWF constants
  */
-@UtilityClass
-public class SwfConstants {
+public final class SwfConstants {
 
-    //The maximum workflow execution retention period is 90 days
+    public final static Description DEFAULT_DESCRIPTION = Description.of("WaterFlow Workflow");
+
+    public final static TaskListName DEFAULT_TASK_LIST = TaskListName.of("DEFAULT");
+
     public final static Period MAX_DOMAIN_RETENTION = Period.ofDays(90);
 
     public static final int MAX_REASON_LENGTH = 256;
@@ -20,9 +24,9 @@ public class SwfConstants {
 
     public static final String SWF_TIMEOUT_NONE = "NONE";
 
-    public static final String SWF_TIMEOUT_YEAR = String.valueOf((TimeUnit.DAYS.toSeconds(365)));
+    public static final Duration SWF_TIMEOUT_YEAR = Duration.ofDays(356);
 
-    public static final String SWF_TIMEOUT_DECISION_DEFAULT = String.valueOf(TimeUnit.MINUTES.toSeconds(1));
+    public static final Duration SWF_TIMEOUT_DECISION_DEFAULT = Duration.ofMinutes(1);
 
     public static final int MAX_NAME_LENGTH = 256;
 
@@ -37,6 +41,8 @@ public class SwfConstants {
     public static final int MAX_DESCRIPTION_LENGTH = 1024;
 
     public static final int MAX_DETAILS_LENGTH = 32768;
+
+    public static final int MAX_INPUT_LENGTH = 32768;
 
     public static final int MARKER_NAME_MAX_LENGTH = 256;
 

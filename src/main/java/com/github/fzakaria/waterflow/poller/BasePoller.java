@@ -4,25 +4,32 @@ package com.github.fzakaria.waterflow.poller;
 import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
 import com.amazonaws.services.simpleworkflow.model.DomainAlreadyExistsException;
 import com.amazonaws.services.simpleworkflow.model.RegisterDomainRequest;
-import lombok.EqualsAndHashCode;
-import lombok.Value;
-import lombok.experimental.NonFinal;
-import lombok.extern.slf4j.Slf4j;
+import com.github.fzakaria.waterflow.immutable.Domain;
+import com.github.fzakaria.waterflow.immutable.Name;
+import com.github.fzakaria.waterflow.immutable.TaskListName;
+import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Period;
 
 import static com.github.fzakaria.waterflow.SwfConstants.*;
+
 /**
  * Base class for Activity and Decision pollers.
  *
- * @author Farid Zakaria
  */
-@Value
-@Slf4j
-@EqualsAndHashCode(of="id")
-public @NonFinal abstract class BasePoller implements Runnable {
-    protected final String id;
-    protected final String taskList;
-    protected final String domain;
-    protected final AmazonSimpleWorkflow swf;
+public abstract class BasePoller implements Runnable {
+    protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    public abstract Name name();
+    public abstract TaskListName taskList();
+    public abstract Domain domain();
+    public abstract AmazonSimpleWorkflow swf();
+    @Value.Default
+    public Period domainRetention() {
+        return MAX_DOMAIN_RETENTION;
+    }
 
     /**
      * {@link Runnable#run} implementation calls {@link #poll()} once,
@@ -52,15 +59,21 @@ public @NonFinal abstract class BasePoller implements Runnable {
      *
      */
     public void registerDomain() {
-        log.trace("Attempting to register {} domain for {}", domain, MAX_DOMAIN_RETENTION);
+        log.trace("Attempting to register {} domain for {}", domain(), domainRetention());
         try {
-            swf.registerDomain(new RegisterDomainRequest().withName(domain)
-                    .withWorkflowExecutionRetentionPeriodInDays(String.valueOf(MAX_DOMAIN_RETENTION.getDays())));
+            swf().registerDomain(new RegisterDomainRequest().withName(domain().value())
+                    .withWorkflowExecutionRetentionPeriodInDays(String.valueOf(domainRetention().getDays())));
         }
         catch (DomainAlreadyExistsException e) {
-            log.trace("SwfDomain {} is already registered",domain);
+            log.trace("SwfDomain {} is already registered",domain());
         }
     }
+
+    /**
+     * Register the specific types this poller
+     * is polling for
+     */
+    public abstract void register();
 
 
 }

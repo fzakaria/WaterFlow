@@ -9,6 +9,7 @@ import com.amazonaws.transform.Unmarshaller;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.github.fzakaria.waterflow.event.Event;
+import com.github.fzakaria.waterflow.event.ImmutableEvent;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
@@ -54,7 +55,7 @@ public class TestUtil {
     public static List<Event> parseActionEvents(String json) {
         List<HistoryEvent> historyEvents = Lists.newArrayList();
         historyEvents.addAll(unmarshalDecisionTask(json).getEvents());
-        return historyEvents.stream().map(he -> new Event(he, historyEvents)).sorted().collect(Collectors.toList());
+        return historyEvents.stream().map(he -> ImmutableEvent.builder().historyEvent(he).historyEvents(historyEvents).build()).sorted().collect(Collectors.toList());
     }
 
     /**

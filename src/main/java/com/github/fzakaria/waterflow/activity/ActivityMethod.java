@@ -5,6 +5,7 @@ import com.amazonaws.services.simpleworkflow.model.RegisterActivityTypeRequest;
 import com.amazonaws.services.simpleworkflow.model.RespondActivityTaskCompletedRequest;
 
 import com.github.fzakaria.waterflow.poller.ActivityPoller;
+import org.immutables.value.Value;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -34,6 +35,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
+@Value.Immutable
 public @interface ActivityMethod {
     /**
      * Registered activity name.

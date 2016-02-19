@@ -7,55 +7,82 @@ import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflowClient;
 import com.amazonaws.services.simpleworkflow.model.Run;
 import com.amazonaws.services.simpleworkflow.model.StartWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fzakaria.waterflow.SwfUtil;
+import com.github.fzakaria.waterflow.CreateWorkflowExecutionRequestBuilder;
 import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.converter.DataConverter;
-import com.github.fzakaria.waterflow.converter.JacksonDataConverter;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
+import com.github.fzakaria.waterflow.converter.ImmutableJacksonDataConverter;
+import com.github.fzakaria.waterflow.immutable.Domain;
+import com.github.fzakaria.waterflow.immutable.Input;
+import com.github.fzakaria.waterflow.immutable.TaskListName;
+import com.github.fzakaria.waterflow.immutable.WorkflowId;
+import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
 import static java.lang.String.format;
 
-@Slf4j
-@Value
-public class Config {
-    private final DataConverter dataConverter;
-    private final AmazonSimpleWorkflow amazonSimpleWorkflow;
-    private final String domain = "swift";
-    private final String taskList = "DEFAULT";
-    private final int activityPoolSize = 2;
-    private final int decisionPoolSize = 2;
+@Value.Immutable(singleton = true)
+public abstract class Config {
 
-    public Config() {
+    protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    @Value.Default
+    public DataConverter dataConverter() {
+       return ImmutableJacksonDataConverter.builder().build();
+    }
+
+    @Value.Default
+    public AmazonSimpleWorkflow swf() {
         //SWF holds the connection for 60 seconds to see if a decision is available
         final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofSeconds(60);
         final Duration DEFAULT_SOCKET_TIMEOUT = DEFAULT_CONNECTION_TIMEOUT.plusSeconds(10);
-        amazonSimpleWorkflow = new AmazonSimpleWorkflowClient(new DefaultAWSCredentialsProviderChain(),
+        return new AmazonSimpleWorkflowClient(new DefaultAWSCredentialsProviderChain(),
                 new ClientConfiguration().withConnectionTimeout((int) DEFAULT_CONNECTION_TIMEOUT.toMillis())
-                        .withSocketTimeout((int) DEFAULT_SOCKET_TIMEOUT.toMillis())
-        );
-        dataConverter = new JacksonDataConverter();
+                        .withSocketTimeout((int) DEFAULT_SOCKET_TIMEOUT.toMillis()));
     }
 
-    public WorkflowExecution submit(Workflow workflow, String workflowId, Object input) {
+    @Value.Default
+    public Domain domain() {
+        return Domain.of("swift");
+    }
+
+    @Value.Default
+    public TaskListName taskList() {
+        return TaskListName.of("DEFAULT");
+    }
+
+    @Value.Default
+    public int activityPoolSize() {
+        return 2;
+    }
+
+    @Value.Default
+    public int decisionPoolSize() {
+        return 2;
+    }
+
+
+    public WorkflowExecution submit(Workflow workflow, WorkflowId workflowId, Object input) {
         log.info(format("submit workflow: %s", workflowId));
 
-        workflow.addTags("Swift");
-        String inputAsString = dataConverter.toData(input);
-        StartWorkflowExecutionRequest request = workflow.createWorkflowExecutionRequest(workflowId, inputAsString);
+        // workflow.addTags("Swift");
+        final String inputAsString = dataConverter().toData(input);
+
+        StartWorkflowExecutionRequest request =
+                CreateWorkflowExecutionRequestBuilder.builder().domain(domain())
+                .workflow(workflow).input(Input.of(inputAsString))
+                .taskList(taskList()).workflowId(workflowId).build();
 
         log.info(format("Start workflow execution: %s", workflowId));
-        Run run = getAmazonSimpleWorkflow().startWorkflowExecution(request);
+        Run run = swf().startWorkflowExecution(request);
         log.info(format("Started workflow %s", run));
-        return new WorkflowExecution().withWorkflowId(workflowId).withRunId(run.getRunId());
+        return new WorkflowExecution().withWorkflowId(workflowId.value()).withRunId(run.getRunId());
     }
 
     public <I, O> WorkflowExecution submit(Workflow<I,O> workflow, I input) {
-        String workflowId = SwfUtil.createUniqueWorkflowId(workflow.name());
+        WorkflowId workflowId = WorkflowId.randomUniqueWorkflowId(workflow);
         return submit(workflow, workflowId, input);
     }
 }
