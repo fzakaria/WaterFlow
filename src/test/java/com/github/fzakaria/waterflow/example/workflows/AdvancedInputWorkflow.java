@@ -1,12 +1,17 @@
-/*
 package com.github.fzakaria.waterflow.example.workflows;
 
 import com.amazonaws.services.simpleworkflow.model.Decision;
 import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.action.ActivityAction;
+import com.github.fzakaria.waterflow.action.ImmutableActivityActions;
 import com.github.fzakaria.waterflow.example.Config;
 import com.github.fzakaria.waterflow.example.ImmutableConfig;
+import com.github.fzakaria.waterflow.immutable.ActionId;
+import com.github.fzakaria.waterflow.immutable.DecisionContext;
 import com.github.fzakaria.waterflow.immutable.Description;
+import com.github.fzakaria.waterflow.immutable.Name;
+import com.github.fzakaria.waterflow.immutable.Version;
+import com.google.common.reflect.TypeToken;
 import org.immutables.value.Value;
 
 import java.time.Duration;
@@ -18,77 +23,60 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 
-*/
 /**
- * SWiFt Advanced 'Hello World' Sample.
+ * WaterFlow Advanced 'Hello World' Sample.
  * This is very similar to {@link SimpleWorkflow} except it demonstrates the power of
  * serializing & deserializing complex POJOs and activities that even take more than 1 parameter.
- *
- * Step1 - Is an example of how an Activity may take more than 1 input of a complex type
+ * <p>
+ * Step 1 - Is an example of how an Activity may take more than 1 input of a complex type
  * Step 2 - Demonstrates passing a complex type'd Collection and returning Void
- *//*
+ */
 
 @Value.Immutable
-public abstract class AdvancedInputWorkflow extends Workflow<AdvancedInputWorkflow.AdamAndEve, Void> {
+public abstract class AdvancedInputWorkflow extends Workflow<AdamAndEve, AdamAndEve> {
 
-    public static void main(String[] args) {
-        Config config = ImmutableC.of();
-        Workflow<Integer, Integer> workflow = ImmutableAd.builder()
-                .domain(config.domain())
-                .taskList(config.taskList())
-                .executionStartToCloseTimeout(Duration.ofMinutes(5))
-                .taskStartToCloseTimeout(Duration.ofSeconds(30))
-                .childPolicy(TERMINATE)
-                .description(Description.of("A Simple Example Workflow")).build();
-        config.submit(workflow, 100);
-    }
-    public static void main(String[] args) {
-        Config config = new Config();
-        Workflow<AdvancedInputWorkflow.AdamAndEve, Void> workflow = new AdvancedInputWorkflow()
-                .domain(config.getDomain())
-                .taskList(config.getTaskList())
-                .executionStartToCloseTimeout(MINUTES, 5)
-                .taskStartToCloseTimeout(SECONDS, 30)
-                .childPolicy(TERMINATE)
-                .description("An Advanced Example Workflow ");
-
-        Animal adam = new Animal();
-        adam.setWeight(44.0);
-        Animal eve = new Animal();
-        adam.setWeight(34.0);
-        AdamAndEve adamAndEve = new AdamAndEve();
-        adamAndEve.adam = adam;
-        adamAndEve.eve = eve;
-        config.submit(workflow, adamAndEve);
-    }
-
-    // Create known actions as fields
-    final ActivityAction<Animal> step1 = new ActivityAction<>("step1", "Mate", "1.0", Animal.class);
-    final ActivityAction<Void> step2 = new ActivityAction<>("step3", "Echo", "1.0", Void.class);
-
-    */
-/** Start the workflow by submitting it to SWF. *//*
-
-    public AdvancedInputWorkflow() {
-        super("Advanced Workflow", "1.0", AdamAndEve.class, Void.class);
-
-        // This step registers the steps with the workflow so that you don't manually have to
-        // inject their workflow, history, state with each call to decide()
-        actions(step1, step2);
+    @Override
+    public Name name() {
+        return Name.of("Advanced Workflow");
     }
 
     @Override
-        public CompletionStage<Void> decide(List<Decision> decisions) {
+    public Version version() {
+        return Version.of("1.0");
+    }
+
+    @Override
+    public TypeToken<AdamAndEve> inputType() {
+        return TypeToken.of(AdamAndEve.class);
+    }
+
+    @Override
+    public TypeToken<AdamAndEve> outputType() {
+        return TypeToken.of(AdamAndEve.class);
+    }
+
+    // Create known actions as fields
+    final AnimalActivityAction step1 = AnimalActivityAction.builder().actionId(ActionId.of("step1"))
+            .name(Name.of("Mate")).version(Version.of("1.0")).workflow(this).build();
+
+    final ImmutableActivityActions.VoidActivityAction step2 = ImmutableActivityActions.VoidActivityAction.builder().actionId(ActionId.of("step2"))
+            .name(Name.of("Echo")).version(Version.of("1.0")).workflow(this).build();
+
+
+    @Override
+    public CompletionStage<AdamAndEve> decide(DecisionContext decisionContext) {
         // Set a breakpoint below to watch the decisions list to see what gets added on each call to Workflow.decide()
-        CompletionStage<AdamAndEve> input = workflowInput();
+        CompletionStage<AdamAndEve> input = workflowInput(decisionContext.events());
 
         CompletionStage<Animal> step1CompletionStage =
-                input.thenCompose(i -> step1.input(i.adam, i.eve).decide(decisions));
+                input.thenCompose(i -> step1.withInput(i.adam(), i.eve()).decide(decisionContext));
 
-        return step1CompletionStage.thenCompose( child ->
-                input.thenCompose( i ->
-                        step2.input((Object)new Animal[]{i.adam, i.eve, child}).decide(decisions)));
+        CompletionStage<Void> step2CompletionStage =
+                step1CompletionStage.thenCompose(child ->
+                input.thenCompose(i ->
+                        step2.withInput((Object) new Animal[]{i.adam(), i.eve(), child}).decide(decisionContext)));
 
-
+        //once the echo activity has completed lets return the original input (for testing)
+        return step2CompletionStage.thenCombine(input, (v, i) -> i);
     }
-}*/
+}

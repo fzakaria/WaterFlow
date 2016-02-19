@@ -20,6 +20,7 @@ import com.github.fzakaria.waterflow.immutable.Key;
 import com.github.fzakaria.waterflow.immutable.Name;
 import com.github.fzakaria.waterflow.immutable.Version;
 import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import org.immutables.value.Value;
 
@@ -129,8 +130,9 @@ public abstract class DecisionPoller extends BasePoller {
                     log.debug("Workflow {} completed. Added final decision to complete workflow.", workflow.key());
                     return dataConverter().toData(r);
                 }).exceptionally(t -> {
-                    log.debug("Workflow {} failed. Added final decision to complete workflow.", workflow.key());
-                    return dataConverter().toData(t);
+                    Throwable rootCause = Throwables.getRootCause(t);
+                    log.debug("Workflow {} failed. Added final decision to complete workflow.", workflow.key(), rootCause);
+                    return dataConverter().toData(rootCause);
                 }).thenAccept(r -> decisions.add(createCompleteWorkflowExecutionDecision(r)));
 
                 if (log.isDebugEnabled()) {

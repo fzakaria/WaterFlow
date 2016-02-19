@@ -1,15 +1,10 @@
 package com.github.fzakaria.waterflow.action;
 
+import com.github.fzakaria.waterflow.immutable.Activity;
 import com.google.common.reflect.TypeToken;
 import org.immutables.value.Value;
 
-@Value.Style(
-        // Detect names starting with underscore
-        typeAbstract = "_*",
-        // Generate without any suffix, just raw detected name
-        typeImmutable = "*",
-        // Make generated it public, leave underscored as package private
-        visibility = Value.Style.ImplementationVisibility.PUBLIC)
+@Activity
 @Value.Enclosing
 public class ActivityActions {
 
@@ -50,6 +45,14 @@ public class ActivityActions {
         @Override
         public TypeToken<Boolean> outputType() {
             return TypeToken.of(Boolean.class);
+        }
+    }
+
+    @Value.Immutable
+    public static abstract class _VoidActivityAction extends ActivityAction<Void>{
+        @Override
+        public TypeToken<Void> outputType() {
+            return TypeToken.of(Void.class);
         }
     }
 

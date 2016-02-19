@@ -1,8 +1,10 @@
 package com.github.fzakaria.waterflow.example;
 
 import com.github.fzakaria.waterflow.Workflow;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableAdvancedInputWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableExampleActivities;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableThrowingWorkflow;
 import com.github.fzakaria.waterflow.poller.ActivityPollerPool;
 import com.github.fzakaria.waterflow.poller.DecisionPollerPool;
 import com.github.fzakaria.waterflow.poller.ImmutableActivityPollerPool;
@@ -36,7 +38,9 @@ public abstract class ActivityDecisionPollerPool {
     @Value.Derived
     public DecisionPollerPool decisionPollerPool() {
         List<Workflow<?,?>> workflows = Lists.newArrayList(
-                ImmutableSimpleWorkflow.builder().dataConverter(config().dataConverter()).build()
+                ImmutableSimpleWorkflow.builder().dataConverter(config().dataConverter()).build(),
+                ImmutableAdvancedInputWorkflow.builder().dataConverter(config().dataConverter()).build(),
+                ImmutableThrowingWorkflow.builder().dataConverter(config().dataConverter()).build()
         );
         return ImmutableDecisionPollerPool.builder().domain(config().domain())
                 .taskList(config().taskList())

@@ -18,6 +18,7 @@ import com.github.fzakaria.waterflow.immutable.Domain;
 import com.github.fzakaria.waterflow.immutable.Key;
 import com.github.fzakaria.waterflow.immutable.Name;
 import com.github.fzakaria.waterflow.immutable.TaskListName;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import org.immutables.value.Value;
 
@@ -125,9 +126,10 @@ public abstract class ActivityPoller extends BasePoller {
                         createRespondActivityTaskFailed(task.getTaskToken(), reason, null)
                 );
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("'{}' '{}' '{}'", task.getActivityId(), key, input, e);
-            String details = dataConverter().toData(e);
+            Throwable rootCause = Throwables.getRootCause(e);
+            String details = dataConverter().toData(rootCause);
             swf().respondActivityTaskFailed(
                     createRespondActivityTaskFailed(task.getTaskToken(), e.getMessage(), details)
             );

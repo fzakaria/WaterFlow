@@ -1,58 +1,55 @@
-/*
 package com.github.fzakaria.waterflow.example.workflows;
 
-import com.amazonaws.services.simpleworkflow.model.Decision;
 import com.github.fzakaria.waterflow.Workflow;
-import com.github.fzakaria.waterflow.action.ActivityAction;
-import com.github.fzakaria.waterflow.example.Config;
+import com.github.fzakaria.waterflow.action.ImmutableActivityActions;
+import com.github.fzakaria.waterflow.example.ActivityDecisionPollerPool;
+import com.github.fzakaria.waterflow.immutable.ActionId;
+import com.github.fzakaria.waterflow.immutable.DecisionContext;
+import com.github.fzakaria.waterflow.immutable.Name;
+import com.github.fzakaria.waterflow.immutable.Version;
+import com.google.common.reflect.TypeToken;
+import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
-import static com.amazonaws.services.simpleworkflow.model.ChildPolicy.TERMINATE;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-*/
 /**
  * This is a sample workflow that demonstrates how you can throw Throwables
  * <b>across</b> activities and have them propogated to the decider.
- *//*
+ */
+@Value.Immutable
+public abstract class ThrowingWorkflow extends Workflow<Integer, Integer>  {
 
-public class ThrowingWorkflow extends Workflow<Integer, Integer>  {
-
-    public static void main(String[] args) {
-        Config config = new Config();
-        Workflow<Integer, Integer> workflow = new ThrowingWorkflow()
-                .domain(config.getDomain())
-                .taskList(config.getTaskList())
-                .executionStartToCloseTimeout(MINUTES, 5)
-                .taskStartToCloseTimeout(SECONDS, 30)
-                .childPolicy(TERMINATE)
-                .description("A Throwing Example Workflow");
-        config.submit(workflow, 100);
-    }
-
-    // Create known actions as fields
-    final ActivityAction<Integer> step1 = new ActivityAction<>("step1", "Activity X", "1.0", Integer.class);
-    final ActivityAction<Integer> step2 = new ActivityAction<>("step2", "Activity Y", "1.0", Integer.class);
-    final ActivityAction<Integer> step3 = new ActivityAction<>("step3", "Activity Z", "1.0", Integer.class);
-
-
-    */
-/** Start the workflow by submitting it to SWF. *//*
-
-    public ThrowingWorkflow() {
-        super("ThrowingWorkflow Workflow", "1.0", Integer.class, Integer.class);
-
-        // This step registers the steps with the workflow so that you don't manually have to
-        // inject their workflow, history, state with each call to decide()
-        actions(step1, step2, step3);
+    @Override
+    public Name name() {
+        return Name.of("Throwing Workflow");
     }
 
     @Override
-    public CompletionStage<Integer> decide(List<Decision> decisions) {
-        return null;
+    public Version version() {
+        return Version.of("1.0");
+    }
+
+    @Override
+    public TypeToken<Integer> inputType() {
+        return TypeToken.of(Integer.class);
+    }
+
+    @Override
+    public TypeToken<Integer> outputType() {
+        return TypeToken.of(Integer.class);
+    }
+
+    // Create known actions as fields
+    final ImmutableActivityActions.IntegerActivityAction step1 = ImmutableActivityActions.IntegerActivityAction.builder().actionId(ActionId.of("step1"))
+            .name(Name.of("Division")).version(Version.of("1.0")).workflow(this).build();
+
+    @Override
+    public CompletionStage<Integer> decide(DecisionContext decisionContext) {
+        CompletionStage<Integer> input = workflowInput(decisionContext.events());
+
+        return input.thenCompose(i -> step1.withInput(i, 0).decide(decisionContext));
     }
 }
-*/
+
