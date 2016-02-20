@@ -7,7 +7,6 @@ import com.amazonaws.services.simpleworkflow.model.Decision;
 import com.amazonaws.services.simpleworkflow.model.DecisionType;
 import com.amazonaws.services.simpleworkflow.model.EventType;
 import com.amazonaws.services.simpleworkflow.model.FailWorkflowExecutionDecisionAttributes;
-import com.amazonaws.services.simpleworkflow.model.RecordMarkerDecisionAttributes;
 import com.amazonaws.services.simpleworkflow.model.StartWorkflowExecutionRequest;
 import com.github.fzakaria.waterflow.action.Action;
 import com.github.fzakaria.waterflow.converter.DataConverter;
@@ -25,17 +24,15 @@ import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import static com.amazonaws.services.simpleworkflow.model.EventType.WorkflowExecutionStarted;
-import static com.github.fzakaria.waterflow.SwfConstants.*;
-import static com.github.fzakaria.waterflow.SwfUtil.trimToMaxLength;
+import static com.github.fzakaria.waterflow.swf.SwfConstants.*;
+import static com.github.fzakaria.waterflow.swf.SwfUtil.trimToMaxLength;
 import static java.lang.String.format;
 
 /**
@@ -130,8 +127,8 @@ public abstract class Workflow<InputType,OutputType> {
      * <p/>
      * @return the workflow start date or null if not available
      */
-    public CompletionStage<Date> workflowStartDate(List<Event> events) {
-        return workflowStartedEvent(events).thenApply(e -> e.eventTimestamp().toDate());
+    public CompletionStage<Instant> workflowStartDate(List<Event> events) {
+        return workflowStartedEvent(events).thenApply(e -> e.eventTimestamp());
     }
 
 
@@ -190,7 +187,7 @@ public abstract class Workflow<InputType,OutputType> {
      * @return message if target is null, otherwise target and message combined into a single string
      */
     public static String createFailReasonString(String target, String message) {
-        String fail = target == null ? message : format("%s:\n%s", target, message);
+        String fail = target == null ? message : format("%s:%n%s", target, message);
         return trimToMaxLength(fail, MAX_REASON_LENGTH);
     }
 
@@ -201,15 +198,6 @@ public abstract class Workflow<InputType,OutputType> {
                         new FailWorkflowExecutionDecisionAttributes()
                                 .withReason(createFailReasonString(target, reason))
                                 .withDetails(trimToMaxLength(details, MAX_DETAILS_LENGTH))
-                );
-    }
-
-    public static Decision createRecordMarkerDecision(String name, Optional<String> details) {
-        return new Decision()
-                .withDecisionType(DecisionType.RecordMarker)
-                .withRecordMarkerDecisionAttributes(new RecordMarkerDecisionAttributes()
-                                .withMarkerName(trimToMaxLength(name, MARKER_NAME_MAX_LENGTH))
-                                .withDetails(trimToMaxLength(details.orElse(""), MAX_DETAILS_LENGTH))
                 );
     }
 

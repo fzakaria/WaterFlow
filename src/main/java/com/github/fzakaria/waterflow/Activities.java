@@ -1,14 +1,13 @@
 package com.github.fzakaria.waterflow;
 
 import com.amazonaws.services.simpleworkflow.model.RecordActivityTaskHeartbeatRequest;
-import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
-import static com.github.fzakaria.waterflow.SwfConstants.MAX_DETAILS_LENGTH;
-import static com.github.fzakaria.waterflow.SwfUtil.assertMaxLength;
+import static com.github.fzakaria.waterflow.swf.SwfConstants.MAX_DETAILS_LENGTH;
+import static com.github.fzakaria.waterflow.swf.SwfUtil.assertMaxLength;
 
 
 /**
@@ -33,6 +32,10 @@ public abstract class Activities {
         } catch (Throwable e) {
             log.warn("Failed to record heartbeat: " + taskToken + ", " + details, e);
         }
+    }
+
+    protected void recordMarker(String marker) {
+
     }
 
     public static RecordActivityTaskHeartbeatRequest createRecordActivityTaskHeartbeat(String taskToken, String details) {

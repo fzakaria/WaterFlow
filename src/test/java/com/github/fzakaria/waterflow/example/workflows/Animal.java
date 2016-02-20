@@ -5,14 +5,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.fzakaria.waterflow.action.ActivityAction;
 import com.github.fzakaria.waterflow.immutable.Activity;
 import com.github.fzakaria.waterflow.immutable.Tuple;
-import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import org.immutables.value.Value;
 
-import java.security.SecureRandom;
-import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,8 +45,8 @@ public abstract class Animal {
     }
 
     @Value.Default
-    public LocalDateTime dob() {
-        return LocalDateTime.now();
+    public Instant dob() {
+        return Instant.now();
     }
     public abstract Optional<Animal> mother();
     public abstract Optional<Animal> father();

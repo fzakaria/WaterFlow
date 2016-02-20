@@ -1,14 +1,19 @@
-package com.github.fzakaria.waterflow;
+package com.github.fzakaria.waterflow.swf;
 
 import com.amazonaws.services.simpleworkflow.model.ChildPolicy;
+import com.amazonaws.services.simpleworkflow.model.Decision;
+import com.amazonaws.services.simpleworkflow.model.DecisionType;
+import com.amazonaws.services.simpleworkflow.model.RecordMarkerDecisionAttributes;
 import com.amazonaws.services.simpleworkflow.model.RegisterWorkflowTypeRequest;
 import com.amazonaws.services.simpleworkflow.model.StartWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.TaskList;
 import com.amazonaws.services.simpleworkflow.model.TerminateWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.WorkflowType;
+import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.immutable.Details;
 import com.github.fzakaria.waterflow.immutable.Domain;
 import com.github.fzakaria.waterflow.immutable.Input;
+import com.github.fzakaria.waterflow.immutable.Name;
 import com.github.fzakaria.waterflow.immutable.Reason;
 import com.github.fzakaria.waterflow.immutable.RunId;
 import com.github.fzakaria.waterflow.immutable.Tag;
@@ -25,7 +30,10 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.fzakaria.waterflow.SwfConstants.MAX_NUMBER_TAGS;
+import static com.github.fzakaria.waterflow.swf.SwfConstants.MARKER_NAME_MAX_LENGTH;
+import static com.github.fzakaria.waterflow.swf.SwfConstants.MAX_DETAILS_LENGTH;
+import static com.github.fzakaria.waterflow.swf.SwfConstants.MAX_NUMBER_TAGS;
+import static com.github.fzakaria.waterflow.swf.SwfUtil.trimToMaxLength;
 import static java.util.stream.Collectors.toList;
 
 @Value.Style(newBuilder = "builder")
@@ -50,6 +58,7 @@ public class SwfRequests {
                 workflow.taskStartToCloseTimeout());
         childPolicy = MoreObjects.firstNonNull(childPolicy,
                 workflow.childPolicy());
+        taskList = MoreObjects.firstNonNull(taskList, workflow.taskList());
         return new StartWorkflowExecutionRequest()
                 .withWorkflowId(workflowId.value())
                 .withDomain(domain.value())
@@ -94,17 +103,18 @@ public class SwfRequests {
     public static TerminateWorkflowExecutionRequest terminateWorkflowRequest(
             @Nonnull Domain domain,
             @Nonnull WorkflowId workflowId,
-            com.google.common.base.Optional<RunId> runId,
-            com.google.common.base.Optional<Reason> reason,
-            com.google.common.base.Optional<Details> details,
-            com.google.common.base.Optional<ChildPolicy> childPolicy) {
-        ChildPolicy cp = childPolicy.or(ChildPolicy.TERMINATE);
+            Optional<RunId> runId,
+            Optional<Reason> reason,
+            Optional<Details> details,
+            Optional<ChildPolicy> childPolicy) {
+        ChildPolicy cp = childPolicy.orElse(ChildPolicy.TERMINATE);
         return new TerminateWorkflowExecutionRequest()
                 .withDomain(domain.value())
                 .withWorkflowId(workflowId.value())
-                .withRunId(runId.transform(RunId::value).orNull())
-                .withReason(reason.transform(Reason::value).orNull())
-                .withDetails(details.transform(Details::value).orNull())
+                .withRunId(runId.map(RunId::value).orElse(null))
+                .withReason(reason.map(Reason::value).orElse(null))
+                .withDetails(details.map(Details::value).orElse(null))
                 .withChildPolicy(cp);
     }
+
 }

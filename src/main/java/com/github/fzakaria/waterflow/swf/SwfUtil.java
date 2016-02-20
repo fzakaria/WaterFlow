@@ -1,4 +1,4 @@
-package com.github.fzakaria.waterflow;
+package com.github.fzakaria.waterflow.swf;
 
 
 import com.amazonaws.services.simpleworkflow.model.CancelTimerDecisionAttributes;
@@ -81,8 +81,7 @@ public final class SwfUtil {
             if (value.length() == 0) {
                 throw new AssertionError("Empty value not allowed");
             }
-            if (value.length() == 0
-                    || value.matches("\\s.*|.*\\s")
+            if (value.matches("\\s.*|.*\\s")
                     || value.matches(".*[:/|\\u0000-\\u001f\\u007f-\\u009f].*")
                     || value.contains("arn")) {
                 throw new AssertionError("Value contains one or more bad characters: '" + value + "'");

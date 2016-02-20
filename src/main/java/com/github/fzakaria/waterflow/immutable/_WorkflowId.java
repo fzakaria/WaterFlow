@@ -6,8 +6,8 @@ import org.immutables.value.Value;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.github.fzakaria.waterflow.SwfConstants.MAX_ID_LENGTH;
-import static com.github.fzakaria.waterflow.SwfUtil.*;
+import static com.github.fzakaria.waterflow.swf.SwfConstants.MAX_ID_LENGTH;
+import static com.github.fzakaria.waterflow.swf.SwfUtil.*;
 import static java.lang.String.format;
 
 @Value.Immutable

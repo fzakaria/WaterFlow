@@ -13,6 +13,7 @@ import com.github.fzakaria.waterflow.immutable.DecisionContext;
 import com.github.fzakaria.waterflow.immutable.Name;
 import com.github.fzakaria.waterflow.immutable.TaskListName;
 import com.github.fzakaria.waterflow.immutable.Version;
+import com.google.common.base.Preconditions;
 import org.immutables.value.Value;
 
 import javax.annotation.Nullable;
@@ -20,8 +21,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import static com.github.fzakaria.waterflow.SwfConstants.DEFAULT_TASK_LIST;
-import static com.github.fzakaria.waterflow.SwfConstants.SWF_TIMEOUT_NONE;
+import static com.github.fzakaria.waterflow.swf.SwfConstants.DEFAULT_TASK_LIST;
+import static com.github.fzakaria.waterflow.swf.SwfConstants.SWF_TIMEOUT_NONE;
 import static java.lang.String.format;
 
 /**
@@ -130,12 +131,13 @@ public abstract class ActivityAction<OutputType> extends Action<OutputType> {
         return TaskType.ACTIVITY;
     }
 
+    @Override
     public CompletionStage<OutputType> decide(DecisionContext decisionContext) {
         EventState eventState = getState(decisionContext.events());
         Optional<Event> currentEvent = getCurrentEvent(decisionContext.events());
         switch (eventState) {
             case NOT_STARTED:
-                decisionContext.addDecisions(createInitiateActivityDecision());
+                decisionContext.addDecisions(createInitialActivityDecision());
                 break;
             case INITIAL:
                 break;
@@ -159,20 +161,10 @@ public abstract class ActivityAction<OutputType> extends Action<OutputType> {
         return new CompletableFuture<>();
     }
 
-    private Throwable convertDetailsToThrowable(Event event) {
-        Throwable failure;
-        try {
-            failure = workflow().dataConverter().fromData(event.details(), Throwable.class);
-        } catch (DataConverterException e) {
-            failure = new RuntimeException(format("%s : %s", event.reason(), event.details()));
-        }
-        return failure;
-    }
-
     /**
      * @return decision of type {@link DecisionType#ScheduleActivityTask}
      */
-    public Decision createInitiateActivityDecision() {
+    public Decision createInitialActivityDecision() {
         final String inputAsString = workflow().dataConverter().toData(input());
         return new Decision()
                 .withDecisionType(DecisionType.ScheduleActivityTask)

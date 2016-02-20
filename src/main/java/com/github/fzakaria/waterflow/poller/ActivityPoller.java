@@ -26,8 +26,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.fzakaria.waterflow.SwfConstants.*;
-import static com.github.fzakaria.waterflow.SwfUtil.*;
+import static com.github.fzakaria.waterflow.swf.SwfConstants.*;
+import static com.github.fzakaria.waterflow.swf.SwfUtil.*;
 import static java.lang.String.format;
 /**
  * Polls for activities on a given domain and task list and executes them.
@@ -43,7 +43,7 @@ import static java.lang.String.format;
  * @see BasePoller
  */
 @Value.Immutable
-public abstract class ActivityPoller extends BasePoller {
+public abstract class ActivityPoller extends BasePoller<ActivityTask> {
 
     public abstract List<Activities> activities();
 
@@ -92,6 +92,15 @@ public abstract class ActivityPoller extends BasePoller {
         }
     }
 
+    @Override
+    protected ActivityTask poll() {
+        ActivityTask task = swf().pollForActivityTask(createPollForActivityTask(domain(), taskList(), name()));
+        if (task == null || task.getTaskToken() == null) {
+            return null;
+        }
+        return task;
+    }
+
     /**
      * Each call performs a long polling or the next activity task from SWF and then calls
      * the matching registered {@link ActivityMethod} method to perform the task.
@@ -104,13 +113,7 @@ public abstract class ActivityPoller extends BasePoller {
      *
      */
     @Override
-    protected void poll() {
-        ActivityTask task = swf().pollForActivityTask(createPollForActivityTask(domain(), taskList(), name()));
-
-        if (task.getTaskToken() == null) {
-            return;
-        }
-
+    protected void consume(ActivityTask task) {
         String input = task.getInput();
         Key key = Key.of(task.getActivityType());
         try {

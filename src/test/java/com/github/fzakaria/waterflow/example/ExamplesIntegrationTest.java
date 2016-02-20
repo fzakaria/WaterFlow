@@ -1,10 +1,15 @@
 package com.github.fzakaria.waterflow.example;
 
 import com.amazonaws.services.simpleworkflow.flow.common.WorkflowExecutionUtils;
+import com.amazonaws.services.simpleworkflow.model.HistoryEvent;
 import com.amazonaws.services.simpleworkflow.model.TerminateWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.UnknownResourceException;
 import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
-import com.github.fzakaria.waterflow.TerminateWorkflowRequestBuilder;
+import com.github.fzakaria.waterflow.TaskType;
+import com.github.fzakaria.waterflow.event.Event;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleMarkerWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.SimpleMarkerWorkflow;
+import com.github.fzakaria.waterflow.swf.TerminateWorkflowRequestBuilder;
 import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.example.workflows.AdamAndEve;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableAdvancedInputWorkflow;
@@ -15,6 +20,7 @@ import com.github.fzakaria.waterflow.immutable.Description;
 import com.github.fzakaria.waterflow.immutable.Reason;
 import com.github.fzakaria.waterflow.immutable.RunId;
 import com.github.fzakaria.waterflow.immutable.WorkflowId;
+import com.google.common.collect.Iterables;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -23,12 +29,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.amazonaws.services.simpleworkflow.model.ChildPolicy.TERMINATE;
 import static com.jayway.awaitility.Awaitility.await;
+import static java.util.stream.Collectors.*;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.isA;
+import static org.junit.Assert.assertThat;
 
 public class ExamplesIntegrationTest {
 
@@ -84,7 +95,7 @@ public class ExamplesIntegrationTest {
                 .description(Description.of("A Simple Example Workflow"))
                 .dataConverter(config.dataConverter()).build();
         workflowExecution = config.submit(workflow, 100);
-        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(30, TimeUnit.SECONDS).until(() ->
+        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(3, TimeUnit.MINUTES).until(() ->
                         getWorkflowExecutionResult(workflowExecution),
                 is("301"));
     }
@@ -103,7 +114,7 @@ public class ExamplesIntegrationTest {
                 ImmutableAnimal.builder().build());
         String expectedResult = config.dataConverter().toData(adamAndEve);
         workflowExecution = config.submit(workflow, adamAndEve);
-        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(30, TimeUnit.SECONDS).until(() ->
+        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(3, TimeUnit.MINUTES).until(() ->
                         getWorkflowExecutionResult(workflowExecution),
                 is(expectedResult));
     }
@@ -119,11 +130,35 @@ public class ExamplesIntegrationTest {
                 .description(Description.of("A Throwing Example Workflow"))
                 .dataConverter(config.dataConverter()).build();
         workflowExecution = config.submit(workflow, 100);
-        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(30, TimeUnit.SECONDS).until(() -> {
+        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(3, TimeUnit.MINUTES).until(() -> {
                     String result = getWorkflowExecutionResult(workflowExecution);
                     return config.dataConverter().fromData(result, Throwable.class);
                 },
                 isA(ArithmeticException.class));
+    }
+
+    @Test
+    public void markerWorkflowTest() {
+        //submit workflow
+        Workflow<Integer, Integer> workflow = ImmutableSimpleMarkerWorkflow.builder()
+                .taskList(config.taskList())
+                .executionStartToCloseTimeout(Duration.ofMinutes(5))
+                .taskStartToCloseTimeout(Duration.ofSeconds(30))
+                .childPolicy(TERMINATE)
+                .description(Description.of("A Marker Example Workflow"))
+                .dataConverter(config.dataConverter()).build();
+        workflowExecution = config.submit(workflow, 100);
+        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(3, TimeUnit.MINUTES).until(() ->
+                        getWorkflowExecutionResult(workflowExecution),
+                is("201"));
+        List<HistoryEvent> historyEvents = WorkflowExecutionUtils.getHistory(config.swf(), config.domain().value(), workflowExecution);
+        List<Event> events = Event.fromHistoryEvents(historyEvents);
+        List<Event> recordMarkerEvents = events.stream()
+                .filter(event -> event.task() == TaskType.RECORD_MARKER).collect(toList());
+        assertThat("incorrect number of marker events", recordMarkerEvents, hasSize(1));
+        Event recordMarkerEvent = Iterables.getOnlyElement(recordMarkerEvents);
+        assertThat(recordMarkerEvent.actionId(), is(SimpleMarkerWorkflow.MARKER_NAME));
+        assertThat(recordMarkerEvent.details(), is("101"));
     }
 
     private static String getWorkflowExecutionResult(WorkflowExecution workflowExecution) {

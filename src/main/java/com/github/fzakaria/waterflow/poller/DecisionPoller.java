@@ -10,7 +10,6 @@ import com.amazonaws.services.simpleworkflow.model.RegisterWorkflowTypeRequest;
 import com.amazonaws.services.simpleworkflow.model.RespondDecisionTaskCompletedRequest;
 import com.amazonaws.services.simpleworkflow.model.TaskList;
 import com.amazonaws.services.simpleworkflow.model.TypeAlreadyExistsException;
-import com.github.fzakaria.waterflow.CreateRegisterWorkflowTypeRequestBuilder;
 import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.converter.DataConverter;
 import com.github.fzakaria.waterflow.event.Event;
@@ -19,9 +18,13 @@ import com.github.fzakaria.waterflow.immutable.DecisionContext;
 import com.github.fzakaria.waterflow.immutable.Key;
 import com.github.fzakaria.waterflow.immutable.Name;
 import com.github.fzakaria.waterflow.immutable.Version;
+import com.github.fzakaria.waterflow.swf.CreateRegisterWorkflowTypeRequestBuilder;
+import com.github.fzakaria.waterflow.swf.DecisionTaskIterator;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import org.immutables.value.Value;
 
 import java.util.List;
@@ -45,11 +48,12 @@ import static java.lang.String.format;
  * @see BasePoller
  */
 @Value.Immutable
-public abstract class DecisionPoller extends BasePoller {
+public abstract class DecisionPoller extends BasePoller<DecisionTask> {
 
     public abstract List<Workflow<?,?>> workflows();
 
     public abstract DataConverter dataConverter();
+
 
     /**
      * Register workflows added to this poller on Amazon SWF with this instance's domain and task list.
@@ -76,30 +80,29 @@ public abstract class DecisionPoller extends BasePoller {
     }
 
     @Override
-    protected void poll() {
+    protected DecisionTask poll() {
         // Events are request in newest-first reverse order;
         PollForDecisionTaskRequest request = createPollForDecisionTaskRequest();
-        DecisionTask decisionTask = null;
-
-        ImmutableList.Builder<HistoryEvent> historyBuilder = ImmutableList.builder();
-
-        while (decisionTask == null || decisionTask.getNextPageToken() != null) {
-            //If no decision task is available in the specified task list before the timeout of 60 seconds expires,
-            //an empty result is returned. An empty result, in this context, means that a DecisionTask is returned,
-            //but that the value of taskToken is an empty string.
-            //{@see http://docs.aws.amazon.com/amazonswf/latest/apireference/API_PollForDecisionTask.html}
-            decisionTask = swf().pollForDecisionTask(request);
-            if (decisionTask.getEvents() != null) {
-                historyBuilder.addAll(decisionTask.getEvents());
-            }
-            request.setNextPageToken(decisionTask.getNextPageToken());
+        //If no decision task is available in the specified task list before the timeout of 60 seconds expires,
+        //an empty result is returned. An empty result, in this context, means that a DecisionTask is returned,
+        //but that the value of taskToken is an empty string.
+        //{@see http://docs.aws.amazon.com/amazonswf/latest/apireference/API_PollForDecisionTask.html}
+        DecisionTask decisionTask = swf().pollForDecisionTask(request);
+        if (decisionTask == null || decisionTask.getTaskToken() == null) {
+            return null;
         }
+        return decisionTask;
+    }
 
-        //We sort here even though we expect it be sorted from the API just to be certain.
-        final List<HistoryEvent> historyEvents = historyBuilder.build();
-        final List<Event> events = historyEvents.stream().map(h ->
-                ImmutableEvent.builder().historyEvent(h).historyEvents(historyEvents).build())
-                .sorted().collect(Collectors.toList());
+    @Override
+    protected void consume(DecisionTask decisionTask) {
+        // Events are request in newest-first reverse order;
+        PollForDecisionTaskRequest request = createPollForDecisionTaskRequest();
+
+        DecisionTaskIterator decisionTaskIterator = new DecisionTaskIterator(swf(), request, decisionTask);
+
+        final List<HistoryEvent> historyEvents = Lists.newArrayList(decisionTaskIterator);
+        final List<Event> events = Event.fromHistoryEvents(historyEvents);
 
         if (events.isEmpty()) {
             log.debug("No decisions found for a workflow");

@@ -13,13 +13,13 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Period;
 
-import static com.github.fzakaria.waterflow.SwfConstants.*;
+import static com.github.fzakaria.waterflow.swf.SwfConstants.*;
 
 /**
  * Base class for Activity and Decision pollers.
  *
  */
-public abstract class BasePoller implements Runnable {
+public abstract class BasePoller<WorkItem> implements Runnable {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     public abstract Name name();
@@ -40,7 +40,11 @@ public abstract class BasePoller implements Runnable {
     public void run() {
         log.trace("Beginning poll execution.");
         try {
-            poll();
+            WorkItem item = poll();
+            if (item == null) {
+                return;
+            }
+            consume(item);
         } catch (Throwable t) {
             log.error("Unexpected throwable during poll.", t);
         }
@@ -48,10 +52,16 @@ public abstract class BasePoller implements Runnable {
 
     /**
      * Subclass implements to perform the SWF polling work.
-     *
+     * @return returns null if nothing to handle
      * @see #run
      */
-    protected abstract void poll();
+    protected abstract WorkItem poll();
+
+    /**
+     * Subclass implements to perform the consuming work.
+     * @see #run
+     */
+    protected abstract void consume(WorkItem item);
 
     /**
      * Register domain if it does not exist already

@@ -2,14 +2,21 @@ package com.github.fzakaria.waterflow.action;
 
 import com.github.fzakaria.waterflow.TaskType;
 import com.github.fzakaria.waterflow.Workflow;
+import com.github.fzakaria.waterflow.converter.DataConverterException;
 import com.github.fzakaria.waterflow.event.Event;
 import com.github.fzakaria.waterflow.event.EventState;
 import com.github.fzakaria.waterflow.immutable.ActionId;
+import com.github.fzakaria.waterflow.immutable.DecisionContext;
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
+import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 import static com.github.fzakaria.waterflow.event.EventState.NOT_STARTED;
@@ -22,6 +29,8 @@ import static java.lang.String.format;
  * Concept heavily based from <a href="https://bitbucket.org/clarioanalytics/services-swift">services-swift</a>
  */
 public abstract class Action<OutputType>  {
+
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The unique id of the action for the workflow.
@@ -36,7 +45,6 @@ public abstract class Action<OutputType>  {
 
     /**
      * The workflow with which this action belongs to.
-     * This is usually set in {@link Workflow#actions(Action...)}
      */
     public abstract Workflow<?,?> workflow();
 
@@ -46,6 +54,20 @@ public abstract class Action<OutputType>  {
      * @return The {@link TaskType} this {@link Action} is
      */
     public abstract TaskType taskType();
+
+
+    /**
+     * Subclasses must implement this to decide how to handle the action.
+     * Care must be taken care to review history so that the same action is not executed multiple
+     * times during workflow replay.
+     */
+    public abstract CompletionStage<OutputType> decide(DecisionContext decisionContext);
+
+    @Value.Check
+    protected void check() {
+        Preconditions.checkNotNull(workflow(),
+                "This action must be given a workflow.");
+    }
 
     /**
      * Get the most recent event for this {@link Action}.
@@ -72,9 +94,14 @@ public abstract class Action<OutputType>  {
         return currentEvent.map(Event::state).orElse(NOT_STARTED);
     }
 
-    protected void assertWorkflowSet() {
-        if (workflow() == null) {
-            throw new IllegalStateException(format("%s has no associated workflow. Ensure all actions used by a workflow are added to the workflow.", toString()));
+
+    protected Throwable convertDetailsToThrowable(Event event) {
+        Throwable failure;
+        try {
+            failure = workflow().dataConverter().fromData(event.details(), Throwable.class);
+        } catch (DataConverterException e) {
+            failure = new RuntimeException(format("%s : %s", event.reason(), event.details()));
         }
+        return failure;
     }
 }

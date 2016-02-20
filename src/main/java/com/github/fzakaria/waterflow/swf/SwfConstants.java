@@ -1,4 +1,4 @@
-package com.github.fzakaria.waterflow;
+package com.github.fzakaria.waterflow.swf;
 
 import com.github.fzakaria.waterflow.immutable.Description;
 import com.github.fzakaria.waterflow.immutable.TaskListName;

@@ -6,15 +6,17 @@ import com.amazonaws.services.simpleworkflow.model.HistoryEvent;
 import com.github.fzakaria.waterflow.TaskType;
 import com.github.fzakaria.waterflow.immutable.ActionId;
 import org.immutables.value.Value;
-import org.joda.time.DateTime;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.github.fzakaria.waterflow.event.EventState.*;
 import static com.github.fzakaria.waterflow.TaskType.*;
 import static com.amazonaws.services.simpleworkflow.model.EventType.*;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.*;
 
 
 /**
@@ -30,13 +32,20 @@ public abstract class Event implements Comparable<Event> {
      * All history events are required since we need to find the previous events
      * they might refer to.
      */
+    @Value.Auxiliary
     public abstract List<HistoryEvent> historyEvents();
+
+    public static List<Event> fromHistoryEvents(List<HistoryEvent> historyEvents) {
+        return historyEvents.stream()
+                .map(h -> ImmutableEvent.builder().historyEvent(h).historyEvents(historyEvents).build())
+                .sorted().collect(toList());
+    }
 
     public EventType type() { return EventType.valueOf(historyEvent().getEventType()); }
 
     public Long id() { return historyEvent().getEventId(); }
 
-    public DateTime eventTimestamp() { return new DateTime(historyEvent().getEventTimestamp()); }
+    public Instant eventTimestamp() { return historyEvent().getEventTimestamp().toInstant(); }
 
     public TaskType task() {
         if (WorkflowExecutionStarted == type()) { return WORKFLOW_EXECUTION; }
@@ -548,7 +557,8 @@ public abstract class Event implements Comparable<Event> {
      * Sort by eventId descending (most recent event first).
      */
     @Override
-    public int compareTo(Event event) {
-            return event.id().compareTo(id());
+     public int compareTo(Event event) {
+        return event.id().compareTo(id());
     }
+
 }

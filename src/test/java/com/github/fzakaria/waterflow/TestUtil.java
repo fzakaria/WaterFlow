@@ -53,10 +53,16 @@ public class TestUtil {
      * @param json json to parse
      */
     public static List<Event> parseActionEvents(String json) {
-        List<HistoryEvent> historyEvents = Lists.newArrayList();
-        historyEvents.addAll(unmarshalDecisionTask(json).getEvents());
+        List<HistoryEvent> historyEvents = parseHistoryEvents(json);
         return historyEvents.stream().map(he -> ImmutableEvent.builder().historyEvent(he).historyEvents(historyEvents).build()).sorted().collect(Collectors.toList());
     }
+
+    public static List<HistoryEvent> parseHistoryEvents(String json) {
+        List<HistoryEvent> historyEvents = Lists.newArrayList();
+        historyEvents.addAll(unmarshalDecisionTask(json).getEvents());
+        return historyEvents;
+    }
+
 
     /**
      * Load workflow history converted to a list of {@link Event} sorted in descending event id order
@@ -69,6 +75,11 @@ public class TestUtil {
     public static List<Event> loadActionEvents(String fileName) {
         return parseActionEvents(readFile(fileName));
     }
+
+    public static List<HistoryEvent> loadHistoryEvents(String fileName) {
+        return parseHistoryEvents(readFile(fileName));
+    }
+
 
     /**
      * Use SWF API to unmarshal a json document into a {@link DecisionTask}.

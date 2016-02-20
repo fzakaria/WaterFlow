@@ -7,7 +7,7 @@ import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflowClient;
 import com.amazonaws.services.simpleworkflow.model.Run;
 import com.amazonaws.services.simpleworkflow.model.StartWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
-import com.github.fzakaria.waterflow.CreateWorkflowExecutionRequestBuilder;
+import com.github.fzakaria.waterflow.swf.CreateWorkflowExecutionRequestBuilder;
 import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.converter.DataConverter;
 import com.github.fzakaria.waterflow.converter.ImmutableJacksonDataConverter;
