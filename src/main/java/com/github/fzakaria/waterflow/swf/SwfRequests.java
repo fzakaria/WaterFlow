@@ -1,18 +1,13 @@
 package com.github.fzakaria.waterflow.swf;
 
 import com.amazonaws.services.simpleworkflow.model.ChildPolicy;
-import com.amazonaws.services.simpleworkflow.model.Decision;
-import com.amazonaws.services.simpleworkflow.model.DecisionType;
-import com.amazonaws.services.simpleworkflow.model.RecordMarkerDecisionAttributes;
+import com.amazonaws.services.simpleworkflow.model.RecordActivityTaskHeartbeatRequest;
 import com.amazonaws.services.simpleworkflow.model.RegisterWorkflowTypeRequest;
-import com.amazonaws.services.simpleworkflow.model.StartTimerDecisionAttributes;
 import com.amazonaws.services.simpleworkflow.model.StartWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.TaskList;
 import com.amazonaws.services.simpleworkflow.model.TerminateWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.WorkflowType;
 import com.github.fzakaria.waterflow.Workflow;
-import com.github.fzakaria.waterflow.immutable.ActionId;
-import com.github.fzakaria.waterflow.immutable.Control;
 import com.github.fzakaria.waterflow.immutable.Details;
 import com.github.fzakaria.waterflow.immutable.Domain;
 import com.github.fzakaria.waterflow.immutable.Input;
@@ -42,32 +37,33 @@ public class SwfRequests {
     public static StartWorkflowExecutionRequest workflowExecutionRequest(
             @Nonnull Workflow<?, ?> workflow,
             @Nonnull Domain domain,
-            @Nullable TaskListName taskList,
-            WorkflowId workflowId,
-            Input input,
-            List<Tag> tags,
+            @Nonnull WorkflowId workflowId,
+            Optional<TaskListName> taskList,
+            Optional<Input> input,
+            Optional<List<Tag>> tags,
             @Nullable Duration executionStartToCloseTimeout,
             @Nullable ChildPolicy childPolicy,
             @Nullable Duration taskStartToCloseTimeout) {
-        Preconditions.checkArgument(tags.size() < MAX_NUMBER_TAGS,
-                "'tags' is longer than supported max length");
+        tags.ifPresent(  t -> {
+            Preconditions.checkArgument(t.size() < MAX_NUMBER_TAGS,
+                    "'tags' is longer than supported max length");
+        });
         executionStartToCloseTimeout = MoreObjects.firstNonNull(executionStartToCloseTimeout,
                 workflow.executionStartToCloseTimeout());
         taskStartToCloseTimeout = MoreObjects.firstNonNull(taskStartToCloseTimeout,
                 workflow.taskStartToCloseTimeout());
         childPolicy = MoreObjects.firstNonNull(childPolicy,
                 workflow.childPolicy());
-        taskList = MoreObjects.firstNonNull(taskList, workflow.taskList());
         return new StartWorkflowExecutionRequest()
                 .withWorkflowId(workflowId.value())
                 .withDomain(domain.value())
                 .withTaskList(new TaskList()
-                        .withName(taskList.value()))
+                        .withName(taskList.orElse(workflow.taskList()).value()))
                 .withWorkflowType(new WorkflowType()
                         .withName(workflow.name().value())
                         .withVersion(workflow.version().value()))
-                .withInput(input.value())
-                .withTagList(tags.stream().map(Tag::value).collect(toList()))
+                .withInput(input.map(Input::value).orElse(null))
+                .withTagList(tags.map( t -> t.stream().map(Tag::value).collect(toList())).orElse(null))
                 .withExecutionStartToCloseTimeout(String.valueOf(executionStartToCloseTimeout.getSeconds()))
                 .withTaskStartToCloseTimeout(String.valueOf(taskStartToCloseTimeout.getSeconds()))
                 .withChildPolicy(childPolicy.name());
@@ -114,6 +110,15 @@ public class SwfRequests {
                 .withReason(reason.map(Reason::value).orElse(null))
                 .withDetails(details.map(Details::value).orElse(null))
                 .withChildPolicy(cp);
+    }
+
+    @Builder.Factory
+    public static RecordActivityTaskHeartbeatRequest recordActivityTaskHeartbeatRequest(
+            @Nonnull String taskToken,
+            Optional<Details> details) {
+        return new RecordActivityTaskHeartbeatRequest()
+                .withTaskToken(taskToken)
+                .withDetails(details.map(Details::value).orElse(null));
     }
 
 }
