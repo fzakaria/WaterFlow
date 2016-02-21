@@ -8,8 +8,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.common.base.Preconditions;
 import org.immutables.value.Value;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -38,6 +40,10 @@ public abstract class JacksonDataConverter implements DataConverter {
 
     @Override
     public String toData(Object input) throws DataConverterException {
+        if (input == null) {
+            return null;
+        }
+
         try {
             return objectMapper().writeValueAsString(input);
         } catch (JsonProcessingException e) {
@@ -46,7 +52,12 @@ public abstract class JacksonDataConverter implements DataConverter {
     }
 
     @Override
-    public <T> T fromData(String input, Type type) throws DataConverterException {
+    public <T> T fromData(String input, @Nonnull Type type) throws DataConverterException {
+        Preconditions.checkNotNull(type);
+        if (input == null) {
+            return null;
+        }
+
         try {
             return objectMapper().readValue(input, objectMapper().constructType(type));
         } catch (IOException e) {

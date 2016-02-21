@@ -1,6 +1,8 @@
 package com.github.fzakaria.waterflow;
 
 import com.amazonaws.services.simpleworkflow.model.RecordActivityTaskHeartbeatRequest;
+import com.github.fzakaria.waterflow.immutable.Details;
+import com.github.fzakaria.waterflow.swf.RecordActivityTaskHeartbeatRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +20,11 @@ public abstract class Activities {
 
     private static final Logger log = LoggerFactory.getLogger(Activities.class);
 
-    @Nullable
-    public abstract ActivityContext activityContext();
+    private ActivityContext activityContext;
+
+    public ActivityContext activityContext() {
+        return activityContext;
+    }
 
     /**
      * Record a heartbeat on SWF.
@@ -28,19 +33,14 @@ public abstract class Activities {
     protected void recordHeartbeat(String details) {
         final String taskToken = activityContext().task().getTaskToken();
         try {
-            activityContext().service().recordActivityTaskHeartbeat(createRecordActivityTaskHeartbeat(taskToken, details));
+            final RecordActivityTaskHeartbeatRequest request =
+                    RecordActivityTaskHeartbeatRequestBuilder.builder()
+                            .taskToken(taskToken).details(Details.of(details)).build();
+            activityContext().service().recordActivityTaskHeartbeat(request);
         } catch (Throwable e) {
             log.warn("Failed to record heartbeat: " + taskToken + ", " + details, e);
+            throw e;
         }
     }
 
-    protected void recordMarker(String marker) {
-
-    }
-
-    public static RecordActivityTaskHeartbeatRequest createRecordActivityTaskHeartbeat(String taskToken, String details) {
-        return new RecordActivityTaskHeartbeatRequest()
-                .withTaskToken(taskToken)
-                .withDetails(assertMaxLength(details, MAX_DETAILS_LENGTH));
-    }
 }

@@ -16,6 +16,8 @@ import com.amazonaws.services.simpleworkflow.model.SignalExternalWorkflowExecuti
 import com.amazonaws.services.simpleworkflow.model.StartChildWorkflowExecutionDecisionAttributes;
 import com.amazonaws.services.simpleworkflow.model.StartTimerDecisionAttributes;
 
+import java.time.Duration;
+
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 
@@ -136,6 +138,13 @@ public final class SwfUtil {
         return null;
     }
 
+    /**
+     * A helper method to get the seconds from a given duration.
+     * Strings are needed for the variety of timeouts given for Workflow and Activities
+     */
+    public static String seconds(Duration duration) {
+        return String.valueOf(duration.getSeconds());
+    }
 
 
 

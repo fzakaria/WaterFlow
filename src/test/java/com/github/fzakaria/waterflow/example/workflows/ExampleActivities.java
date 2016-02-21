@@ -7,6 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
+
+import static java.lang.String.format;
 
 /**
  * Sample ExampleActivities showing a wide range of features.
@@ -56,6 +62,23 @@ public abstract  class ExampleActivities extends Activities {
     @ActivityMethod(name = "Mate", version = "1.0")
     public Animal mate(Animal male, Animal female) {
         return Animal.mate(male, female);
+    }
+
+    /**
+     * A simple method that only executes/completes happily if the recordHeartbeat function
+     * occurs as expected. The heartbeat timeout is to "5" however there is a sleep of "10" seconds.
+     */
+    @ActivityMethod(name = "Heartbeat", version = "1.0", heartbeatTimeout = "5")
+    public Void heartbeat() throws InterruptedException {
+        final LongAdder adder = new LongAdder();
+        final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+        service.scheduleAtFixedRate(() -> {
+            adder.increment();
+            recordHeartbeat(format("This is the %s heartbeat", adder.intValue()));
+        }, 0, 1, TimeUnit.SECONDS);
+        Thread.sleep(Duration.ofSeconds(10).toMillis());
+        service.shutdownNow();
+        return null;
     }
 
 

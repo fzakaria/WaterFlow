@@ -8,6 +8,7 @@ import com.amazonaws.services.simpleworkflow.model.UnknownResourceException;
 import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
 import com.github.fzakaria.waterflow.TaskType;
 import com.github.fzakaria.waterflow.event.Event;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableHeartbeatWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleMarkerWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableTimerWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.SimpleMarkerWorkflow;
@@ -24,6 +25,7 @@ import com.github.fzakaria.waterflow.immutable.Reason;
 import com.github.fzakaria.waterflow.immutable.RunId;
 import com.github.fzakaria.waterflow.immutable.WorkflowId;
 import com.google.common.collect.Iterables;
+import org.hamcrest.text.IsEmptyString;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -42,6 +44,7 @@ import static java.util.stream.Collectors.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.isA;
+import static org.hamcrest.text.IsEmptyString.*;
 import static org.junit.Assert.assertThat;
 
 public class ExamplesIntegrationTest {
@@ -187,6 +190,22 @@ public class ExamplesIntegrationTest {
         Optional<Event> timerEvent = timerEvents.stream().filter(e -> e.type() == EventType.TimerStarted).findFirst();
         assertThat(timerEvent.get().actionId(), is(TimerWorkflow.TIMER_NAME));
         assertThat(timerEvent.get().control(), is("101"));
+    }
+
+    @Test
+    public void heartbeatsWorkflowTest() {
+        //submit workflow
+        Workflow<Void, Void> workflow = ImmutableHeartbeatWorkflow.builder()
+                .taskList(config.taskList())
+                .executionStartToCloseTimeout(Duration.ofMinutes(5))
+                .taskStartToCloseTimeout(Duration.ofSeconds(30))
+                .childPolicy(TERMINATE)
+                .description(Description.of("A Heartbeat Example Workflow"))
+                .dataConverter(config.dataConverter()).build();
+        workflowExecution = config.submit(workflow, null);
+        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(3, TimeUnit.MINUTES).until(() ->
+                        getWorkflowExecutionResult(workflowExecution),
+                isEmptyOrNullString());
     }
 
     private static String getWorkflowExecutionResult(WorkflowExecution workflowExecution) {

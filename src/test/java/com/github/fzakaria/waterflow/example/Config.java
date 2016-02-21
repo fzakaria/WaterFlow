@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -64,15 +65,14 @@ public abstract class Config {
     }
 
 
-    public WorkflowExecution submit(Workflow workflow, WorkflowId workflowId, Object input) {
+    public WorkflowExecution submit(Workflow workflow, WorkflowId workflowId, Optional<Object> input) {
         log.info(format("submit workflow: %s", workflowId));
 
-        // workflow.addTags("Swift");
-        final String inputAsString = dataConverter().toData(input);
+        Optional<Input> inputOptional = input.map( i -> dataConverter().toData(i)).map(Input::of);
 
         StartWorkflowExecutionRequest request =
                 WorkflowExecutionRequestBuilder.builder().domain(domain())
-                .workflow(workflow).input(Input.of(inputAsString))
+                .workflow(workflow).input(inputOptional)
                 .taskList(taskList()).workflowId(workflowId).build();
 
         log.info(format("Start workflow execution: %s", workflowId));
@@ -83,6 +83,6 @@ public abstract class Config {
 
     public <I, O> WorkflowExecution submit(Workflow<I,O> workflow, I input) {
         WorkflowId workflowId = WorkflowId.randomUniqueWorkflowId(workflow);
-        return submit(workflow, workflowId, input);
+        return submit(workflow, workflowId, Optional.ofNullable(input));
     }
 }
