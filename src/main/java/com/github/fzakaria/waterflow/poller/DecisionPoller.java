@@ -13,17 +13,14 @@ import com.amazonaws.services.simpleworkflow.model.TypeAlreadyExistsException;
 import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.converter.DataConverter;
 import com.github.fzakaria.waterflow.event.Event;
-import com.github.fzakaria.waterflow.event.ImmutableEvent;
 import com.github.fzakaria.waterflow.immutable.DecisionContext;
 import com.github.fzakaria.waterflow.immutable.Key;
 import com.github.fzakaria.waterflow.immutable.Name;
 import com.github.fzakaria.waterflow.immutable.Version;
-import com.github.fzakaria.waterflow.swf.CreateRegisterWorkflowTypeRequestBuilder;
 import com.github.fzakaria.waterflow.swf.DecisionTaskIterator;
+import com.github.fzakaria.waterflow.swf.RegisterWorkflowTypeRequestBuilder;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import org.immutables.value.Value;
 
@@ -65,7 +62,7 @@ public abstract class DecisionPoller extends BasePoller<DecisionTask> {
         for (Workflow workflow : workflows()) {
             try {
                 RegisterWorkflowTypeRequest request =
-                        CreateRegisterWorkflowTypeRequestBuilder.builder().domain(domain())
+                        RegisterWorkflowTypeRequestBuilder.builder().domain(domain())
                         .workflow(workflow).build();
                 swf().registerWorkflowType(request);
                 log.info(format("Register workflow succeeded %s", workflow));

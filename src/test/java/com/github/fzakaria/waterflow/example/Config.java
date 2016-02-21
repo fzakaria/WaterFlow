@@ -7,7 +7,6 @@ import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflowClient;
 import com.amazonaws.services.simpleworkflow.model.Run;
 import com.amazonaws.services.simpleworkflow.model.StartWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
-import com.github.fzakaria.waterflow.swf.CreateWorkflowExecutionRequestBuilder;
 import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.converter.DataConverter;
 import com.github.fzakaria.waterflow.converter.ImmutableJacksonDataConverter;
@@ -15,6 +14,7 @@ import com.github.fzakaria.waterflow.immutable.Domain;
 import com.github.fzakaria.waterflow.immutable.Input;
 import com.github.fzakaria.waterflow.immutable.TaskListName;
 import com.github.fzakaria.waterflow.immutable.WorkflowId;
+import com.github.fzakaria.waterflow.swf.WorkflowExecutionRequestBuilder;
 import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public abstract class Config {
         final String inputAsString = dataConverter().toData(input);
 
         StartWorkflowExecutionRequest request =
-                CreateWorkflowExecutionRequestBuilder.builder().domain(domain())
+                WorkflowExecutionRequestBuilder.builder().domain(domain())
                 .workflow(workflow).input(Input.of(inputAsString))
                 .taskList(taskList()).workflowId(workflowId).build();
 

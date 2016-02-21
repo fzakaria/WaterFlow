@@ -42,6 +42,8 @@ public final class SwfConstants {
 
     public static final int MAX_DETAILS_LENGTH = 32768;
 
+    public static final int MAX_CONTROL_LENGTH = 32768;
+
     public static final int MAX_INPUT_LENGTH = 32768;
 
     public static final int MARKER_NAME_MAX_LENGTH = 256;

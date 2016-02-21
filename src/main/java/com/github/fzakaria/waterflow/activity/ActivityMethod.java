@@ -112,4 +112,11 @@ public @interface ActivityMethod {
      */
     String heartbeatTimeout() default "NONE";
 
+    /** Task priority values can range from "-2147483648" to "2147483647", with higher numbers indicating
+     * higher priority. If you don't set the task priority for an activity or workflow,
+     * it will be assigned a priority of zero ("0").
+     * @see RegisterActivityTypeRequest#defaultTaskPriority
+     */
+    int taskPriority() default 0;
+
 }

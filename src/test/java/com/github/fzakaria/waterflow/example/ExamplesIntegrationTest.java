@@ -1,6 +1,7 @@
 package com.github.fzakaria.waterflow.example;
 
 import com.amazonaws.services.simpleworkflow.flow.common.WorkflowExecutionUtils;
+import com.amazonaws.services.simpleworkflow.model.EventType;
 import com.amazonaws.services.simpleworkflow.model.HistoryEvent;
 import com.amazonaws.services.simpleworkflow.model.TerminateWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.UnknownResourceException;
@@ -8,7 +9,9 @@ import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
 import com.github.fzakaria.waterflow.TaskType;
 import com.github.fzakaria.waterflow.event.Event;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleMarkerWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableTimerWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.SimpleMarkerWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.TimerWorkflow;
 import com.github.fzakaria.waterflow.swf.TerminateWorkflowRequestBuilder;
 import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.example.workflows.AdamAndEve;
@@ -30,8 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.amazonaws.services.simpleworkflow.model.ChildPolicy.TERMINATE;
 import static com.jayway.awaitility.Awaitility.await;
@@ -159,6 +162,31 @@ public class ExamplesIntegrationTest {
         Event recordMarkerEvent = Iterables.getOnlyElement(recordMarkerEvents);
         assertThat(recordMarkerEvent.actionId(), is(SimpleMarkerWorkflow.MARKER_NAME));
         assertThat(recordMarkerEvent.details(), is("101"));
+    }
+
+    @Test
+    public void timerWorkflowTest() {
+        //submit workflow
+        Workflow<Integer, Integer> workflow = ImmutableTimerWorkflow.builder()
+                .taskList(config.taskList())
+                .executionStartToCloseTimeout(Duration.ofMinutes(5))
+                .taskStartToCloseTimeout(Duration.ofSeconds(30))
+                .childPolicy(TERMINATE)
+                .description(Description.of("A Timer Example Workflow"))
+                .dataConverter(config.dataConverter()).build();
+        workflowExecution = config.submit(workflow, 100);
+        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(3, TimeUnit.MINUTES).until(() ->
+                        getWorkflowExecutionResult(workflowExecution),
+                is("201"));
+        List<HistoryEvent> historyEvents = WorkflowExecutionUtils.getHistory(config.swf(), config.domain().value(), workflowExecution);
+        List<Event> events = Event.fromHistoryEvents(historyEvents);
+        List<Event> timerEvents = events.stream()
+                .filter(event -> event.task() == TaskType.TIMER).collect(toList());
+        //TimerStarted & TimerFired
+        assertThat("incorrect number of marker events", timerEvents, hasSize(2));
+        Optional<Event> timerEvent = timerEvents.stream().filter(e -> e.type() == EventType.TimerStarted).findFirst();
+        assertThat(timerEvent.get().actionId(), is(TimerWorkflow.TIMER_NAME));
+        assertThat(timerEvent.get().control(), is("101"));
     }
 
     private static String getWorkflowExecutionResult(WorkflowExecution workflowExecution) {

@@ -1,28 +1,23 @@
 package com.github.fzakaria.waterflow.action;
 
-import com.amazonaws.services.simpleworkflow.model.ActivityType;
 import com.amazonaws.services.simpleworkflow.model.Decision;
-import com.amazonaws.services.simpleworkflow.model.DecisionType;
 import com.amazonaws.services.simpleworkflow.model.ScheduleActivityTaskDecisionAttributes;
-import com.amazonaws.services.simpleworkflow.model.TaskList;
 import com.github.fzakaria.waterflow.TaskType;
-import com.github.fzakaria.waterflow.converter.DataConverterException;
 import com.github.fzakaria.waterflow.event.Event;
 import com.github.fzakaria.waterflow.event.EventState;
+import com.github.fzakaria.waterflow.immutable.Control;
 import com.github.fzakaria.waterflow.immutable.DecisionContext;
 import com.github.fzakaria.waterflow.immutable.Name;
 import com.github.fzakaria.waterflow.immutable.TaskListName;
 import com.github.fzakaria.waterflow.immutable.Version;
-import com.google.common.base.Preconditions;
-import org.immutables.value.Value;
+import com.github.fzakaria.waterflow.swf.ScheduleActivityTaskDecisionBuilder;
+import com.github.fzakaria.waterflow.swf.SwfConstants;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import static com.github.fzakaria.waterflow.swf.SwfConstants.DEFAULT_TASK_LIST;
-import static com.github.fzakaria.waterflow.swf.SwfConstants.SWF_TIMEOUT_NONE;
 import static java.lang.String.format;
 
 /**
@@ -49,11 +44,9 @@ public abstract class ActivityAction<OutputType> extends Action<OutputType> {
      * Pass null unit or duration &lt;= 0 for a timeout of NONE.
      *
      * @see ScheduleActivityTaskDecisionAttributes#heartbeatTimeout
+     * @see SwfConstants#SWF_TIMEOUT_NONE
      */
-    @Value.Default
-    public String heartBeatTimeoutTimeout() {
-        return SWF_TIMEOUT_NONE;
-    }
+    public abstract Optional<String> heartBeatTimeoutTimeout();
 
     /**
      * Override activity's default schedule to close timeout.
@@ -64,11 +57,9 @@ public abstract class ActivityAction<OutputType> extends Action<OutputType> {
      * Pass null unit or duration &lt;= 0 for a timeout of NONE.
      *
      * @see ScheduleActivityTaskDecisionAttributes#scheduleToCloseTimeout
+     * @see SwfConstants#SWF_TIMEOUT_NONE
      */
-    @Value.Default
-    public String scheduleToCloseTimeout() {
-        return SWF_TIMEOUT_NONE;
-    }
+    public abstract Optional<String> scheduleToCloseTimeout();
 
     /**
      * Override activity's default schedule to close timeout.
@@ -79,11 +70,9 @@ public abstract class ActivityAction<OutputType> extends Action<OutputType> {
      * Pass null unit or duration &lt;= 0 for a timeout of NONE.
      *
      * @see ScheduleActivityTaskDecisionAttributes#scheduleToStartTimeout
+     * @see SwfConstants#SWF_TIMEOUT_NONE
      */
-    @Value.Default
-    public String scheduleToStartTimeout() {
-        return SWF_TIMEOUT_NONE;
-    }
+    public abstract Optional<String> scheduleToStartTimeout();
 
 
     /**
@@ -95,11 +84,9 @@ public abstract class ActivityAction<OutputType> extends Action<OutputType> {
      * Pass null unit or duration &lt;= 0 for a timeout of NONE.
      *
      * @see ScheduleActivityTaskDecisionAttributes#startToCloseTimeout
+     * @see SwfConstants#SWF_TIMEOUT_NONE
      */
-    @Value.Default
-    public String startToCloseTimeout() {
-        return SWF_TIMEOUT_NONE;
-    }
+    public abstract Optional<String> startToCloseTimeout();
 
     /**
      * Sets the input for the {@link ActivityAction} that is translated to a
@@ -116,15 +103,17 @@ public abstract class ActivityAction<OutputType> extends Action<OutputType> {
      * If not set the activity will use its related workflow task list.
      * This allows for sending activity tasks to different lists.
      */
-    public TaskListName taskList() {
-        return DEFAULT_TASK_LIST;
-    }
+    public abstract Optional<TaskListName> taskList();
 
     /**
      * @see ScheduleActivityTaskDecisionAttributes#control
      */
-    @Nullable
-    public abstract String control();
+    public abstract Optional<Control> control();
+
+    /**
+     * @see ScheduleActivityTaskDecisionAttributes#taskPriority
+     */
+    public abstract Optional<Integer> taskPriority();
 
     @Override
     public TaskType taskType() {
@@ -137,7 +126,13 @@ public abstract class ActivityAction<OutputType> extends Action<OutputType> {
         Optional<Event> currentEvent = getCurrentEvent(decisionContext.events());
         switch (eventState) {
             case NOT_STARTED:
-                decisionContext.addDecisions(createInitialActivityDecision());
+                final Optional<String> input = Optional.ofNullable(input()).map(i -> workflow().dataConverter().toData(i));
+                final Decision decision = ScheduleActivityTaskDecisionBuilder
+                        .builder().actionId(actionId()).control(control()).heartbeatTimeout(heartBeatTimeoutTimeout())
+                        .input(input).name(name()).version(version()).scheduleToCloseTimeout(scheduleToCloseTimeout())
+                        .scheduleToStartTimeout(scheduleToStartTimeout())
+                        .taskListName(taskList()).taskPriority(taskPriority()).build();
+                decisionContext.addDecisions(decision);
                 break;
             case INITIAL:
                 break;
@@ -159,28 +154,6 @@ public abstract class ActivityAction<OutputType> extends Action<OutputType> {
                 throw new IllegalStateException(format("%s unknown action state: %s", this, eventState));
         }
         return new CompletableFuture<>();
-    }
-
-    /**
-     * @return decision of type {@link DecisionType#ScheduleActivityTask}
-     */
-    public Decision createInitialActivityDecision() {
-        final String inputAsString = workflow().dataConverter().toData(input());
-        return new Decision()
-                .withDecisionType(DecisionType.ScheduleActivityTask)
-                .withScheduleActivityTaskDecisionAttributes(new ScheduleActivityTaskDecisionAttributes()
-                        .withActivityType(new ActivityType()
-                                .withName(name().value())
-                                .withVersion(version().value()))
-                        .withActivityId(actionId().value())
-                        .withTaskList(new TaskList()
-                                .withName(taskList().value()))
-                        .withInput(inputAsString)
-                        .withControl(control())
-                        .withHeartbeatTimeout(heartBeatTimeoutTimeout())
-                        .withScheduleToCloseTimeout(scheduleToCloseTimeout())
-                        .withScheduleToStartTimeout(scheduleToStartTimeout())
-                        .withStartToCloseTimeout(startToCloseTimeout()));
     }
 
 }

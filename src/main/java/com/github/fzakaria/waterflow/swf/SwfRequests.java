@@ -5,15 +5,17 @@ import com.amazonaws.services.simpleworkflow.model.Decision;
 import com.amazonaws.services.simpleworkflow.model.DecisionType;
 import com.amazonaws.services.simpleworkflow.model.RecordMarkerDecisionAttributes;
 import com.amazonaws.services.simpleworkflow.model.RegisterWorkflowTypeRequest;
+import com.amazonaws.services.simpleworkflow.model.StartTimerDecisionAttributes;
 import com.amazonaws.services.simpleworkflow.model.StartWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.TaskList;
 import com.amazonaws.services.simpleworkflow.model.TerminateWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.WorkflowType;
 import com.github.fzakaria.waterflow.Workflow;
+import com.github.fzakaria.waterflow.immutable.ActionId;
+import com.github.fzakaria.waterflow.immutable.Control;
 import com.github.fzakaria.waterflow.immutable.Details;
 import com.github.fzakaria.waterflow.immutable.Domain;
 import com.github.fzakaria.waterflow.immutable.Input;
-import com.github.fzakaria.waterflow.immutable.Name;
 import com.github.fzakaria.waterflow.immutable.Reason;
 import com.github.fzakaria.waterflow.immutable.RunId;
 import com.github.fzakaria.waterflow.immutable.Tag;
@@ -30,17 +32,14 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.fzakaria.waterflow.swf.SwfConstants.MARKER_NAME_MAX_LENGTH;
-import static com.github.fzakaria.waterflow.swf.SwfConstants.MAX_DETAILS_LENGTH;
 import static com.github.fzakaria.waterflow.swf.SwfConstants.MAX_NUMBER_TAGS;
-import static com.github.fzakaria.waterflow.swf.SwfUtil.trimToMaxLength;
 import static java.util.stream.Collectors.toList;
 
 @Value.Style(newBuilder = "builder")
 public class SwfRequests {
 
     @Builder.Factory
-    public static StartWorkflowExecutionRequest createWorkflowExecutionRequest(
+    public static StartWorkflowExecutionRequest workflowExecutionRequest(
             @Nonnull Workflow<?, ?> workflow,
             @Nonnull Domain domain,
             @Nullable TaskListName taskList,
@@ -75,7 +74,7 @@ public class SwfRequests {
     }
 
     @Builder.Factory
-         public static RegisterWorkflowTypeRequest createRegisterWorkflowTypeRequest(
+         public static RegisterWorkflowTypeRequest registerWorkflowTypeRequest(
             @Nonnull Workflow<?, ?> workflow,
             @Nonnull Domain domain) {
         return new RegisterWorkflowTypeRequest()
