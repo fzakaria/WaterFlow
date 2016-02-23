@@ -75,3 +75,12 @@ public abstract class SimpleWorkflow extends Workflow<Integer, Integer> {
     
 }
 ```
+
+# TODO
+
+1. Add Retry strategies/behavior for ActivityTasks
+2. Add 'StartChildWorkflow' Action
+3. Add 'Signal' Action
+4. Add Spring/Guice as 'Optional' dependencies. Introduce appropriate new workflow scopes and sample configuration setup.
+5. Fixup some overuse of the Immutables library
+6. Add metrics
