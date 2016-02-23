@@ -15,8 +15,8 @@ public abstract class _Key {
         return Key.of(Name.of(activityType.getName()), Version.of(activityType.getVersion()));
     }
 
-    public static Key of(ActivityMethod activityMethodty) {
-        return Key.of(Name.of(activityMethodty.name()), Version.of(activityMethodty.version()));
+    public static Key of(ActivityMethod activityMethod) {
+        return Key.of(Name.of(activityMethod.name()), Version.of(activityMethod.version()));
     }
 
 }

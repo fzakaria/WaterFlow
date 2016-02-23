@@ -2,9 +2,6 @@ package com.github.fzakaria.waterflow.example.workflows;
 
 import com.github.fzakaria.waterflow.Activities;
 import com.github.fzakaria.waterflow.activity.ActivityMethod;
-import org.immutables.value.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.concurrent.Executors;
@@ -17,10 +14,7 @@ import static java.lang.String.format;
 /**
  * Sample ExampleActivities showing a wide range of features.
  */
-@Value.Immutable
-public abstract  class ExampleActivities extends Activities {
-
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+public  class ExampleActivities extends Activities {
 
     @ActivityMethod(name = "Sleep", version = "1.0")
     public Void sleep(Duration duration) {
@@ -37,7 +31,7 @@ public abstract  class ExampleActivities extends Activities {
      * Activity is important. All variadic input needs to be given as an object array.
      * This is to help distinguish it.
      * <pre>step1.input(new Object[] {i, 1})</pre>
-     * @return
+     * @return The sum of the two inputs
      */
     @ActivityMethod(name = "Addition", version = "1.0")
     public Integer addition(Integer lhs, Integer rhs) {

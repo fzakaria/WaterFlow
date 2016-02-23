@@ -1,7 +1,6 @@
 package com.github.fzakaria.waterflow.example.workflows;
 
 import com.github.fzakaria.waterflow.Workflow;
-import com.github.fzakaria.waterflow.action.ImmutableActivityActions;
 import com.github.fzakaria.waterflow.action.ImmutableRecordMarkerAction;
 import com.github.fzakaria.waterflow.immutable.ActionId;
 import com.github.fzakaria.waterflow.immutable.DecisionContext;
@@ -12,6 +11,8 @@ import com.google.common.reflect.TypeToken;
 import org.immutables.value.Value;
 
 import java.util.concurrent.CompletionStage;
+
+import static com.github.fzakaria.waterflow.action.ImmutableActivityActions.IntegerActivityAction;
 
 /**
  * This is a very simple demonstration of how you can record
@@ -45,10 +46,10 @@ public abstract class SimpleMarkerWorkflow extends Workflow<Integer, Integer> {
     }
 
     // Create known actions as fields
-    final ImmutableActivityActions.IntegerActivityAction step1 = ImmutableActivityActions.IntegerActivityAction.builder().actionId(ActionId.of("step1"))
+    final IntegerActivityAction step1 = IntegerActivityAction.builder().actionId(ActionId.of("step1"))
             .name(Name.of("Addition")).version(Version.of("1.0")).workflow(this).build();
 
-    final ImmutableActivityActions.IntegerActivityAction step2 = ImmutableActivityActions.IntegerActivityAction.builder().actionId(ActionId.of("step2"))
+    final IntegerActivityAction step2 = IntegerActivityAction.builder().actionId(ActionId.of("step2"))
             .name(Name.of("Addition")).version(Version.of("1.0")).workflow(this).build();
 
     final ImmutableRecordMarkerAction recordMarkerAction = ImmutableRecordMarkerAction.builder().actionId(MARKER_NAME)

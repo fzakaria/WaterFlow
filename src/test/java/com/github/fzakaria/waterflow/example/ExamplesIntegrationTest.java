@@ -7,25 +7,24 @@ import com.amazonaws.services.simpleworkflow.model.TerminateWorkflowExecutionReq
 import com.amazonaws.services.simpleworkflow.model.UnknownResourceException;
 import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
 import com.github.fzakaria.waterflow.TaskType;
-import com.github.fzakaria.waterflow.event.Event;
-import com.github.fzakaria.waterflow.example.workflows.ImmutableHeartbeatWorkflow;
-import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleMarkerWorkflow;
-import com.github.fzakaria.waterflow.example.workflows.ImmutableTimerWorkflow;
-import com.github.fzakaria.waterflow.example.workflows.SimpleMarkerWorkflow;
-import com.github.fzakaria.waterflow.example.workflows.TimerWorkflow;
-import com.github.fzakaria.waterflow.swf.TerminateWorkflowRequestBuilder;
 import com.github.fzakaria.waterflow.Workflow;
+import com.github.fzakaria.waterflow.event.Event;
 import com.github.fzakaria.waterflow.example.workflows.AdamAndEve;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableAdvancedInputWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableAnimal;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableHeartbeatWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleMarkerWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableThrowingWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableTimerWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.SimpleMarkerWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.TimerWorkflow;
 import com.github.fzakaria.waterflow.immutable.Description;
 import com.github.fzakaria.waterflow.immutable.Reason;
 import com.github.fzakaria.waterflow.immutable.RunId;
 import com.github.fzakaria.waterflow.immutable.WorkflowId;
+import com.github.fzakaria.waterflow.swf.TerminateWorkflowRequestBuilder;
 import com.google.common.collect.Iterables;
-import org.hamcrest.text.IsEmptyString;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -40,11 +39,11 @@ import java.util.concurrent.TimeUnit;
 
 import static com.amazonaws.services.simpleworkflow.model.ChildPolicy.TERMINATE;
 import static com.jayway.awaitility.Awaitility.await;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.isA;
-import static org.hamcrest.text.IsEmptyString.*;
+import static org.hamcrest.text.IsEmptyString.isEmptyOrNullString;
 import static org.junit.Assert.assertThat;
 
 public class ExamplesIntegrationTest {

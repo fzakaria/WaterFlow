@@ -29,7 +29,7 @@ public abstract class BasePollerPool<PollerType extends BasePoller> {
     public abstract Name name();
 
     public void start() {
-        //set the threadfactory for pretty names
+        //set the ThreadFactory for pretty names
         service().setThreadFactory(executorThreadFactory());
 
         int numOfWorkers = service().getCorePoolSize();

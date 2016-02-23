@@ -44,10 +44,8 @@ public class SwfRequests {
             @Nullable Duration executionStartToCloseTimeout,
             @Nullable ChildPolicy childPolicy,
             @Nullable Duration taskStartToCloseTimeout) {
-        tags.ifPresent(  t -> {
-            Preconditions.checkArgument(t.size() < MAX_NUMBER_TAGS,
-                    "'tags' is longer than supported max length");
-        });
+        tags.ifPresent(  t -> Preconditions.checkArgument(t.size() < MAX_NUMBER_TAGS,
+                "'tags' is longer than supported max length"));
         executionStartToCloseTimeout = MoreObjects.firstNonNull(executionStartToCloseTimeout,
                 workflow.executionStartToCloseTimeout());
         taskStartToCloseTimeout = MoreObjects.firstNonNull(taskStartToCloseTimeout,

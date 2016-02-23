@@ -1,7 +1,6 @@
 package com.github.fzakaria.waterflow.example.workflows;
 
 import com.github.fzakaria.waterflow.Workflow;
-import com.github.fzakaria.waterflow.action.ImmutableActivityActions;
 import com.github.fzakaria.waterflow.action.ImmutableTimerAction;
 import com.github.fzakaria.waterflow.immutable.ActionId;
 import com.github.fzakaria.waterflow.immutable.Control;
@@ -13,6 +12,8 @@ import org.immutables.value.Value;
 
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;
+
+import static com.github.fzakaria.waterflow.action.ImmutableActivityActions.IntegerActivityAction;
 
 /**
  * A sample workflow showing how you might use a Timer to delay the processing of a certain activity.
@@ -45,10 +46,10 @@ public abstract class TimerWorkflow extends Workflow<Integer, Integer> {
     }
 
     // Create known actions as fields
-    final ImmutableActivityActions.IntegerActivityAction step1 = ImmutableActivityActions.IntegerActivityAction.builder().actionId(ActionId.of("step1"))
+    final IntegerActivityAction step1 = IntegerActivityAction.builder().actionId(ActionId.of("step1"))
             .name(Name.of("Addition")).version(Version.of("1.0")).workflow(this).build();
 
-    final ImmutableActivityActions.IntegerActivityAction step2 = ImmutableActivityActions.IntegerActivityAction.builder().actionId(ActionId.of("step2"))
+    final IntegerActivityAction step2 = IntegerActivityAction.builder().actionId(ActionId.of("step2"))
             .name(Name.of("Addition")).version(Version.of("1.0")).workflow(this).build();
 
     final ImmutableTimerAction timerAction = ImmutableTimerAction.builder().actionId(TIMER_NAME)

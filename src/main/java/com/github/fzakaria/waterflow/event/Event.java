@@ -10,13 +10,12 @@ import org.immutables.value.Value;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static com.github.fzakaria.waterflow.event.EventState.*;
-import static com.github.fzakaria.waterflow.TaskType.*;
 import static com.amazonaws.services.simpleworkflow.model.EventType.*;
+import static com.github.fzakaria.waterflow.TaskType.*;
+import static com.github.fzakaria.waterflow.event.EventState.*;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 
 
 /**

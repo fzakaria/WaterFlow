@@ -1,15 +1,13 @@
 package com.github.fzakaria.waterflow.action;
 
-import com.github.fzakaria.waterflow.immutable.Activity;
 import com.google.common.reflect.TypeToken;
 import org.immutables.value.Value;
 
-@Activity
 @Value.Enclosing
 public class ActivityActions {
 
     @Value.Immutable
-    public static abstract class _StringActivityAction extends ActivityAction<String>{
+    public static abstract class StringActivityAction extends ActivityAction<String>{
         @Override
         public TypeToken<String> outputType() {
             return TypeToken.of(String.class);
@@ -17,7 +15,7 @@ public class ActivityActions {
     }
 
     @Value.Immutable
-    public static abstract class _IntegerActivityAction extends ActivityAction<Integer>{
+    public static abstract class IntegerActivityAction extends ActivityAction<Integer>{
         @Override
         public TypeToken<Integer> outputType() {
             return TypeToken.of(Integer.class);
@@ -25,7 +23,7 @@ public class ActivityActions {
     }
 
     @Value.Immutable
-    public static abstract class _LongActivityAction extends ActivityAction<Integer>{
+    public static abstract class LongActivityAction extends ActivityAction<Integer>{
         @Override
         public TypeToken<Integer> outputType() {
             return TypeToken.of(Integer.class);
@@ -33,7 +31,7 @@ public class ActivityActions {
     }
 
     @Value.Immutable
-    public static abstract class _ObjectActivityAction extends ActivityAction<Object>{
+    public static abstract class ObjectActivityAction extends ActivityAction<Object>{
         @Override
         public TypeToken<Object> outputType() {
             return TypeToken.of(Object.class);
@@ -41,7 +39,7 @@ public class ActivityActions {
     }
 
     @Value.Immutable
-    public static abstract class _BooleanActivityAction extends ActivityAction<Boolean>{
+    public static abstract class BooleanActivityAction extends ActivityAction<Boolean>{
         @Override
         public TypeToken<Boolean> outputType() {
             return TypeToken.of(Boolean.class);
@@ -49,7 +47,7 @@ public class ActivityActions {
     }
 
     @Value.Immutable
-    public static abstract class _VoidActivityAction extends ActivityAction<Void>{
+    public static abstract class VoidActivityAction extends ActivityAction<Void>{
         @Override
         public TypeToken<Void> outputType() {
             return TypeToken.of(Void.class);

@@ -4,7 +4,6 @@ import com.amazonaws.services.simpleworkflow.model.Decision;
 import com.github.fzakaria.waterflow.event.Event;
 import org.immutables.value.Value;
 
-import java.util.Collection;
 import java.util.List;
 
 @Value.Modifiable

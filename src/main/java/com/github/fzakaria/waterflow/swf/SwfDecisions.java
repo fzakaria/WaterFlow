@@ -41,7 +41,7 @@ public class SwfDecisions {
             Optional<Integer> taskPriority) {
         TaskList taskList = taskListName.map(TaskListName::value)
                 .map(t -> new TaskList().withName(t)).orElse(null);
-        String taskPriorityString = taskPriority.map(t -> String.valueOf(t)).orElse(null);
+        String taskPriorityString = taskPriority.map(String::valueOf).orElse(null);
         return new Decision()
                 .withDecisionType(DecisionType.ScheduleActivityTask)
                 .withScheduleActivityTaskDecisionAttributes(new ScheduleActivityTaskDecisionAttributes()

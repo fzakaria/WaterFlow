@@ -53,7 +53,6 @@ public @interface ActivityMethod {
 
     /**
      * Description of activity.
-     * Used by {@link ActivityPoller#registerSwfActivities()} when registering the activity on a domain.
      *
      * @see RegisterActivityTypeRequest#description
      */
@@ -61,7 +60,6 @@ public @interface ActivityMethod {
 
     /**
      * Task list.
-     * Used by {@link ActivityPoller#registerSwfActivities()} when registering the activity on a domain.
      *
      * @return defaults to 'default'
      */
@@ -73,7 +71,6 @@ public @interface ActivityMethod {
      * schedule ---> start ---> close
      * |_____________________________|
      * </pre>
-     * Used by {@link ActivityPoller#registerSwfActivities()} when registering the activity on a domain.
      *
      * @see RegisterActivityTypeRequest#defaultTaskScheduleToCloseTimeout
      */
@@ -85,7 +82,6 @@ public @interface ActivityMethod {
      * schedule ---> start ---> close
      * |_________________|
      * </pre>
-     * Used by {@link ActivityPoller#registerSwfActivities()} when registering the activity on a domain.
      *
      * @see RegisterActivityTypeRequest#defaultTaskScheduleToStartTimeout
      */
@@ -97,7 +93,6 @@ public @interface ActivityMethod {
      * schedule ---> start ---> close
      *              |_______________|
      * </pre>
-     * Used by {@link ActivityPoller#registerSwfActivities()} when registering the activity on a domain.
      *
      * @see RegisterActivityTypeRequest#defaultTaskStartToCloseTimeout
      */
@@ -106,7 +101,6 @@ public @interface ActivityMethod {
 
     /**
      * Heartbeat timeout, default "NONE".
-     * Used by {@link ActivityPoller#registerSwfActivities()} when registering the activity on a domain.
      *
      * @see RegisterActivityTypeRequest#defaultTaskHeartbeatTimeout
      */

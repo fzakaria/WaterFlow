@@ -102,11 +102,11 @@ public abstract class Workflow<InputType,OutputType> {
         return ChildPolicy.TERMINATE; // sensible default
     }
 
-    /** SWF task list this workflow is/will be executed under if none given in submissoin*/
+    /** SWF task list this workflow is/will be xecuted under if none given in submissoin*/
     @Value.Default
     public TaskListName taskList() {
         return DEFAULT_TASK_LIST;
-    };
+    }
 
     @Value.Check
     protected void check() {
@@ -128,7 +128,7 @@ public abstract class Workflow<InputType,OutputType> {
      * @return the workflow start date or null if not available
      */
     public CompletionStage<Instant> workflowStartDate(List<Event> events) {
-        return workflowStartedEvent(events).thenApply(e -> e.eventTimestamp());
+        return workflowStartedEvent(events).thenApply(Event::eventTimestamp);
     }
 
 

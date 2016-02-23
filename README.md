@@ -10,7 +10,7 @@ which is a great example of achieving a very usable and simple SWF framework.
 WaterFlow aims to add new features that are common in the [AWS Flow Framework](https://aws.amazon.com/swf/details/flow/)
 without the need for [AspectJ](https://eclipse.org/aspectj/) and the *magical* annotation processing that occurs.
 
-Here is a short list of philosphy decisions that differentiate this framework from [SWiFt](https://bitbucket.org/clarioanalytics/services-swift)
+Here is a short list of philosophy decisions that differentiate this framework from [SWiFt](https://bitbucket.org/clarioanalytics/services-swift)
 and [Glisten](https://github.com/Netflix/glisten/)
 
 1. JDK8 target - heavy use of new JDK8 features such as Optional and Streams make for simpler code

@@ -23,7 +23,7 @@ import static com.github.fzakaria.waterflow.event.EventState.NOT_STARTED;
 import static java.lang.String.format;
 
 /**
- * Combines the concepts of SWF Activities, Signals, Child Workflows, and Timers and their current running state.
+ * Combines the concepts of SWF Activities, Signals, Child Workflow, and Timers and their current running state.
  * <p/>
  * Note: The name "Action" was chosen to avoid naming conflicts with the parallel SWF concept "Task".
  * Concept heavily based from <a href="https://bitbucket.org/clarioanalytics/services-swift">services-swift</a>

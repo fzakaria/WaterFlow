@@ -1,8 +1,8 @@
 package com.github.fzakaria.waterflow.example;
 
 import com.github.fzakaria.waterflow.Workflow;
+import com.github.fzakaria.waterflow.example.workflows.ExampleActivities;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableAdvancedInputWorkflow;
-import com.github.fzakaria.waterflow.example.workflows.ImmutableExampleActivities;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableHeartbeatWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleMarkerWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleWorkflow;
@@ -35,7 +35,7 @@ public abstract class ActivityDecisionPollerPool {
                 .service(new ScheduledThreadPoolExecutor(config().activityPoolSize()))
                 .swf(config().swf())
                 .dataConverter(config().dataConverter())
-                .addActivities(ImmutableExampleActivities.builder().build()).build();
+                .addActivities(new ExampleActivities()).build();
     }
 
     @Value.Derived

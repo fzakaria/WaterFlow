@@ -5,7 +5,6 @@ import com.github.fzakaria.waterflow.immutable.TaskListName;
 
 import java.time.Duration;
 import java.time.Period;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This is a utility class to hold all the SWF constants

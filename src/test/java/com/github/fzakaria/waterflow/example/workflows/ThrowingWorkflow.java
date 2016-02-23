@@ -1,18 +1,16 @@
 package com.github.fzakaria.waterflow.example.workflows;
 
 import com.github.fzakaria.waterflow.Workflow;
-import com.github.fzakaria.waterflow.action.ImmutableActivityActions;
-import com.github.fzakaria.waterflow.example.ActivityDecisionPollerPool;
 import com.github.fzakaria.waterflow.immutable.ActionId;
 import com.github.fzakaria.waterflow.immutable.DecisionContext;
 import com.github.fzakaria.waterflow.immutable.Name;
 import com.github.fzakaria.waterflow.immutable.Version;
 import com.google.common.reflect.TypeToken;
 import org.immutables.value.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletionStage;
+
+import static com.github.fzakaria.waterflow.action.ImmutableActivityActions.IntegerActivityAction;
 
 /**
  * This is a sample workflow that demonstrates how you can throw Throwables
@@ -42,7 +40,7 @@ public abstract class ThrowingWorkflow extends Workflow<Integer, Integer>  {
     }
 
     // Create known actions as fields
-    final ImmutableActivityActions.IntegerActivityAction step1 = ImmutableActivityActions.IntegerActivityAction.builder().actionId(ActionId.of("step1"))
+    final IntegerActivityAction step1 = IntegerActivityAction.builder().actionId(ActionId.of("step1"))
             .name(Name.of("Division")).version(Version.of("1.0")).workflow(this).build();
 
     @Override

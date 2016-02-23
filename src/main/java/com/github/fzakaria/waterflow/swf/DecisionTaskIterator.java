@@ -8,6 +8,7 @@ import com.google.common.collect.AbstractIterator;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 public class DecisionTaskIterator extends AbstractIterator<HistoryEvent> {
@@ -24,7 +25,7 @@ public class DecisionTaskIterator extends AbstractIterator<HistoryEvent> {
         this.request = request;
         this.nextPageToken = startingResponse.getNextPageToken();
         this.currentPage = Optional.ofNullable(startingResponse.getEvents())
-                .map(e -> e.iterator()).orElse( Collections.emptyIterator());
+                .map(List::iterator).orElse( Collections.emptyIterator());
         this.isLastPage = this.nextPageToken == null;
     }
 
@@ -35,7 +36,7 @@ public class DecisionTaskIterator extends AbstractIterator<HistoryEvent> {
             nextPageToken = decisionTask.getNextPageToken();
             isLastPage = this.nextPageToken == null;
             currentPage = Optional.ofNullable(decisionTask.getEvents())
-                    .map(e -> e.iterator()).orElse(Collections.emptyIterator());
+                    .map(List::iterator).orElse(Collections.emptyIterator());
         }
 
         if (currentPage.hasNext()) {

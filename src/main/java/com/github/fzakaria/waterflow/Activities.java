@@ -3,13 +3,11 @@ package com.github.fzakaria.waterflow;
 import com.amazonaws.services.simpleworkflow.model.RecordActivityTaskHeartbeatRequest;
 import com.github.fzakaria.waterflow.immutable.Details;
 import com.github.fzakaria.waterflow.swf.RecordActivityTaskHeartbeatRequestBuilder;
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-
-import static com.github.fzakaria.waterflow.swf.SwfConstants.MAX_DETAILS_LENGTH;
-import static com.github.fzakaria.waterflow.swf.SwfUtil.assertMaxLength;
 
 
 /**
@@ -18,12 +16,18 @@ import static com.github.fzakaria.waterflow.swf.SwfUtil.assertMaxLength;
  */
 public abstract class Activities {
 
-    private static final Logger log = LoggerFactory.getLogger(Activities.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
+    @Nullable
     private ActivityContext activityContext;
 
     public ActivityContext activityContext() {
         return activityContext;
+    }
+
+    public Activities activityContext(ActivityContext activityContext) {
+        this.activityContext = activityContext;
+        return this;
     }
 
     /**
@@ -31,6 +35,7 @@ public abstract class Activities {
      * @param details information to be recorded
      */
     protected void recordHeartbeat(String details) {
+        Preconditions.checkNotNull(activityContext, "ActivityContext should have been set.");
         final String taskToken = activityContext().task().getTaskToken();
         try {
             final RecordActivityTaskHeartbeatRequest request =

@@ -25,7 +25,7 @@ public abstract class _WorkflowId extends Wrapper<String> {
      * Replaces bad characters and whitespace, appends a random int, and trims to MAX_ID_LENGTH,
      * which also makes it easy for amazon cli use.
      *
-     * @param workflowName name of workflow.
+     * @param workflow The workflow to generate the Id for
      *
      * @return unique workflowId
      */

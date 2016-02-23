@@ -1,26 +1,16 @@
 package com.github.fzakaria.waterflow.example.workflows;
 
-import com.amazonaws.services.simpleworkflow.model.Decision;
 import com.github.fzakaria.waterflow.Workflow;
-import com.github.fzakaria.waterflow.action.ActivityAction;
-import com.github.fzakaria.waterflow.action.ImmutableActivityActions;
-import com.github.fzakaria.waterflow.example.Config;
-import com.github.fzakaria.waterflow.example.ImmutableConfig;
 import com.github.fzakaria.waterflow.immutable.ActionId;
 import com.github.fzakaria.waterflow.immutable.DecisionContext;
-import com.github.fzakaria.waterflow.immutable.Description;
 import com.github.fzakaria.waterflow.immutable.Name;
 import com.github.fzakaria.waterflow.immutable.Version;
 import com.google.common.reflect.TypeToken;
 import org.immutables.value.Value;
 
-import java.time.Duration;
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
-import static com.amazonaws.services.simpleworkflow.model.ChildPolicy.TERMINATE;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static com.github.fzakaria.waterflow.action.ImmutableActivityActions.VoidActivityAction;
 
 
 /**
@@ -59,7 +49,7 @@ public abstract class AdvancedInputWorkflow extends Workflow<AdamAndEve, AdamAnd
     final AnimalActivityAction step1 = AnimalActivityAction.builder().actionId(ActionId.of("step1"))
             .name(Name.of("Mate")).version(Version.of("1.0")).workflow(this).build();
 
-    final ImmutableActivityActions.VoidActivityAction step2 = ImmutableActivityActions.VoidActivityAction.builder().actionId(ActionId.of("step2"))
+    final VoidActivityAction step2 = VoidActivityAction.builder().actionId(ActionId.of("step2"))
             .name(Name.of("Echo")).version(Version.of("1.0")).workflow(this).build();
 
 
