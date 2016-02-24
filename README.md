@@ -1,6 +1,7 @@
 # WaterFlow
 
 WaterFlow is a *non-magical* - relatively small framework for use with [Amazon SWF](https://aws.amazon.com/swf/).
+
 Browse the [online documentation](http://fzakaria.github.io/WaterFlow/ )
 
 # Philosophy
