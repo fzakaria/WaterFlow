@@ -158,17 +158,31 @@
                 <div class="col-md-9" role="main">
 
 <h2 id="throwables">Throwables</h2>
-<blockquote>
-<p>TO DO</p>
-</blockquote>
+<p>Things don't always go as planned and neither do your <code>ActivityTask</code>. Through the help of the <code>DataConverter</code>, <code>Throwables</code> are marshalled from the Activity to the decider.  That means you can write decider logic that approriately accounts for exceptions that may occur during the execution of an ActivityTask.</p>
+<p>A common scenario may be that you would want to run some cleanup actions if an exception is thrown.</p>
 <h2 id="heartbeat">Heartbeat</h2>
-<blockquote>
-<p>TO DO</p>
-</blockquote>
+<p>During Activity registration (occurs automatically at the start of the <code>ActivityPollerPool</code>) a <code>taskHeartbeatTimeout</code> is set. The <code>taskHeartbeatTimeout</code> is defined as the longest time an <code>AcitivityTask</code> may perform work before either responding with the result or heartbeat. For activities that run extra long (since a Workflow is allowed to run for up to 1 year!) you'll need to periodically send heartbeats during the Acitvity.</p>
+<p>All ActivityMethods must be present in a class that subclasses from <code>com.github.fzakaria.waterflow.Activities</code> which includes the <em>protected</em> method
+<code>protected void recordHeartbeat(String details)</code></p>
+<p>Higher level abstractions may find it necessary to wrap the heartbeat functionality in a <a href="https://en.wikipedia.org/wiki/Watchdog_timer">Watch Dog Thread</a>.</p>
 <h2 id="retries">Retries</h2>
-<blockquote>
-<p>TO DO</p>
-</blockquote>
+<p>It would be a PITA if you had to correctly handdle <em>transient</em> exceptions thrown in your ActivityTask - such as service intermittent outage or consistency check or even IOExceptions during HTTP requests.</p>
+<p>Since the concept of retrying intermittent failures is so common, <code>WaterFlow</code> provides a simple way to register a <code>RetryStrategy</code> to the <code>ActivityAction</code>.
+If any <code>Throwable</code> escapes during the invocation of an <code>ActivityTask</code>, the <code>RetryStrategy</code> is used to determine how long a <code>Timer</code> should be created to delay until the next attempt.</p>
+<p>Several strategies are included in the framework:</p>
+<ol>
+<li>TimeLimitRetryStrategy</li>
+<li>MaxAttemptsRetryStrategy</li>
+<li>ExponentialBackoffStrategy</li>
+<li>NoRetryStrategy</li>
+<li>MaxLimitRetryStrategy</li>
+<li>FixedDelayRetryStrategy</li>
+</ol>
+<pre><code>final IntegerActivityAction step1 = IntegerActivityAction.builder()
+            .actionId(ActionId.of(&quot;step1&quot;)).retryStrategy(new FixedDelayRetryStrategy(Duration.ofSeconds(3)))
+            .name(Name.of(&quot;Hello World&quot;)).version(Version.of(&quot;1.0&quot;)).workflow(this).build();
+</code></pre>
+
 <h2 id="dataconverters">DataConverters</h2>
 <p>The <code>WaterFlow</code> framework marshals data across activities &amp; deciders by using a <code>DataConverter</code>. By default, the framework offers a data converter that is based on the Jackson JSON processor - similar to the <em>AWS Flow Framework</em>.</p>
 <p>If the default converter isn't sufficient for your application, you can implement a custom data converter. A good example is offering a <code>DataConverter</code> that might encrypt/decrypt data sent over the wire or marshalling data through <code>S3</code> to overcome the size limitation of the fields put in palce by SWF</p></div>
