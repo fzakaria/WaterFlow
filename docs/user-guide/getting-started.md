@@ -413,3 +413,6 @@ Scroll **down** to the bottom until you see the `WorkflowExecutionCompleted` and
   ]
 }
 ```
+
+That's all it took to get using Simple Workflow Service! No need to fear complicated deciders and distributed work. 
+Continue reading the user-guide to learn some more advanced use cases and features of `WaterFlow`.
