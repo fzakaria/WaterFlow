@@ -1,0 +1,29 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "Welcome to WaterFlow\n\n\nWaterFlow is a non-magical / easy to understand / JDK8 framework for use with \nSimple Workflow Service\n\n\nPhilosophy", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#welcome-to-waterflow", 
+            "text": "WaterFlow is a non-magical / easy to understand / JDK8 framework for use with  Simple Workflow Service", 
+            "title": "Welcome to WaterFlow"
+        }, 
+        {
+            "location": "/#philosophy", 
+            "text": "", 
+            "title": "Philosophy"
+        }, 
+        {
+            "location": "/about/license/", 
+            "text": "The MIT License (MIT)\n\n\nCopyright \u00a9 \n2016\n \nFarid Zakaria\n\n\nPermission is hereby granted, free of charge, to any person\nobtaining a copy of this software and associated documentation\nfiles (the \u201cSoftware\u201d), to deal in the Software without\nrestriction, including without limitation the rights to use,\ncopy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following\nconditions:\n\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\n\nTHE SOFTWARE IS PROVIDED \u201cAS IS\u201d, WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES\nOF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT\nHOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nWHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR\nOTHER DEALINGS IN THE SOFTWARE.", 
+            "title": "License"
+        }, 
+        {
+            "location": "/about/license/#the-mit-license-mit", 
+            "text": "Copyright \u00a9  2016   Farid Zakaria  Permission is hereby granted, free of charge, to any person\nobtaining a copy of this software and associated documentation\nfiles (the \u201cSoftware\u201d), to deal in the Software without\nrestriction, including without limitation the rights to use,\ncopy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following\nconditions:  The above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.  THE SOFTWARE IS PROVIDED \u201cAS IS\u201d, WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES\nOF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT\nHOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nWHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR\nOTHER DEALINGS IN THE SOFTWARE.", 
+            "title": "The MIT License (MIT)"
+        }
+    ]
+}
