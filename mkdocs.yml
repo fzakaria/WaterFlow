@@ -1,0 +1,13 @@
+site_name: WaterFlow
+repo_name: 'GitHub'
+repo_url: https://github.com/fzakaria/WaterFlow
+remote_branch: 'gh-pages'
+site_description: 'WaterFlow is a non-magical / easy to understand / JDK8 framework for use with https://aws.amazon.com/swf/'
+site_author: 'Farid Zakaria'
+copyright: '2016 Farid Zakaria'
+pages:
+- Home: index.md
+- About:
+  - 'License': 'about/license.md'
+- UserGuide:
+  - 'Getting Started': 'user-guide/getting-started.md'
