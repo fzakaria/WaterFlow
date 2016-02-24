@@ -76,11 +76,21 @@ public abstract class SimpleWorkflow extends Workflow<Integer, Integer> {
 }
 ```
 
+# Features
+
+1. Write deciders in fluent Asynchronous interfaces using [CompletionStage](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html)
+2. Many Actions supported in the deciders
+  1. ActivityAction - Bread and butter of creating activities with generic input/out using `DataConverter`
+  2. RecordMarkerAction - Record arbitrary diagnostic information during the decider to help debugging
+  3. TimerAction - Create timers in the decider to wait for a specific time interval before proceeding
+  4. WaitSignalAction - Wait on an external stimuli (could be human intervention) before proceeding in the workflow logic
+3. Extra long ActivityActions can emit a heartbeat to make sure they continue beyond acceptable time limit
+4. Automatically retry failed ActivityActions. Several retry strategies (including exponential backoff) provided.
+
 # TODO
 
-1. Add Retry strategies/behavior for ActivityTasks
 2. Add 'StartChildWorkflow' Action
-3. Add 'Signal' Action
+3. Add Send 'Signal' Action
 4. Add Spring/Guice as 'Optional' dependencies. Introduce appropriate new workflow scopes and sample configuration setup.
 5. Fixup some overuse of the Immutables library
 6. Add metrics
