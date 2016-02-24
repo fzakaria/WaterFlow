@@ -13,7 +13,7 @@ import org.immutables.value.Value;
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;
 
-import static com.github.fzakaria.waterflow.action.ImmutableActivityActions.IntegerActivityAction;
+import static com.github.fzakaria.waterflow.action.ActivityActions.IntegerActivityAction;
 
 /**
  * A sample workflow showing how you might use a Timer to delay the processing of a certain activity.

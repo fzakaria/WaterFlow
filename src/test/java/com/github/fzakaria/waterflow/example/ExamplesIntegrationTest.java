@@ -3,6 +3,7 @@ package com.github.fzakaria.waterflow.example;
 import com.amazonaws.services.simpleworkflow.flow.common.WorkflowExecutionUtils;
 import com.amazonaws.services.simpleworkflow.model.EventType;
 import com.amazonaws.services.simpleworkflow.model.HistoryEvent;
+import com.amazonaws.services.simpleworkflow.model.SignalWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.TerminateWorkflowExecutionRequest;
 import com.amazonaws.services.simpleworkflow.model.UnknownResourceException;
 import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
@@ -13,12 +14,15 @@ import com.github.fzakaria.waterflow.example.workflows.AdamAndEve;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableAdvancedInputWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableAnimal;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableHeartbeatWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableRetryingActivityWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleMarkerWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableThrowingWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableTimerWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableWaitForSignalWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.SimpleMarkerWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.TimerWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.WaitForSignalWorkflow;
 import com.github.fzakaria.waterflow.immutable.Description;
 import com.github.fzakaria.waterflow.immutable.Reason;
 import com.github.fzakaria.waterflow.immutable.RunId;
@@ -35,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static com.amazonaws.services.simpleworkflow.model.ChildPolicy.TERMINATE;
@@ -205,6 +210,47 @@ public class ExamplesIntegrationTest {
         await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(3, TimeUnit.MINUTES).until(() ->
                         getWorkflowExecutionResult(workflowExecution),
                 isEmptyOrNullString());
+    }
+
+    @Test
+    public void waitForSignalWorkflowTest() {
+        //submit workflow
+        Workflow<Void, String> workflow = ImmutableWaitForSignalWorkflow.builder()
+                .taskList(config.taskList())
+                .executionStartToCloseTimeout(Duration.ofMinutes(5))
+                .taskStartToCloseTimeout(Duration.ofSeconds(30))
+                .childPolicy(TERMINATE)
+                .description(Description.of("A Wait for Signal Example Workflow"))
+                .dataConverter(config.dataConverter()).build();
+        workflowExecution = config.submit(workflow, null);
+        final String input = workflow.dataConverter().toData("Test signal!");
+        Executors.newSingleThreadScheduledExecutor().schedule( () -> {
+            SignalWorkflowExecutionRequest request = new SignalWorkflowExecutionRequest()
+                    .withDomain(config.domain().value()).withRunId(workflowExecution.getRunId())
+                    .withWorkflowId(workflowExecution.getWorkflowId()).withInput(input)
+                    .withSignalName(WaitForSignalWorkflow.SIGNAL_NAME.value());
+            config.swf().signalWorkflowExecution(request);
+        }, 5, TimeUnit.SECONDS);
+        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(3, TimeUnit.MINUTES).until(() ->
+                        getWorkflowExecutionResult(workflowExecution),
+                is(input));
+    }
+
+
+    @Test
+    public void retryingActivityWorkflowTest() {
+        //submit workflow
+        Workflow<Integer, Integer> workflow = ImmutableRetryingActivityWorkflow.builder()
+                .taskList(config.taskList())
+                .executionStartToCloseTimeout(Duration.ofMinutes(5))
+                .taskStartToCloseTimeout(Duration.ofSeconds(30))
+                .childPolicy(TERMINATE)
+                .description(Description.of("A retrying Activity Example Workflow"))
+                .dataConverter(config.dataConverter()).build();
+        workflowExecution = config.submit(workflow, 100);
+        await().ignoreExceptions().pollInterval(1, TimeUnit.SECONDS).atMost(3, TimeUnit.MINUTES).until(() ->
+                        getWorkflowExecutionResult(workflowExecution),
+                is("100"));
     }
 
     private static String getWorkflowExecutionResult(WorkflowExecution workflowExecution) {

@@ -74,7 +74,7 @@ public abstract class Action<OutputType>  {
      * Events are filtered by {@link #actionId}
      */
     protected Optional<Event> getCurrentEvent(List<Event> events) {
-        return events.stream().filter(e -> Objects.equals(e.actionId(), actionId())).findFirst();
+        return getEvents(events).stream().findFirst();
     }
 
     /**
@@ -82,7 +82,7 @@ public abstract class Action<OutputType>  {
      * @return Workflow {@link Event} selected by {@link #actionId()} && {@link #taskType()} ()}
      */
     protected List<Event> getTaskEvents(List<Event> events) {
-        return events.stream().filter(e -> e.task() == taskType()).collect(Collectors.toList());
+        return getEvents(events).stream().filter(e -> e.task() == taskType()).collect(Collectors.toList());
     }
 
     /**
@@ -92,6 +92,13 @@ public abstract class Action<OutputType>  {
     protected EventState getState(List<Event> events) {
         Optional<Event> currentEvent = getCurrentEvent(events);
         return currentEvent.map(Event::state).orElse(NOT_STARTED);
+    }
+
+    /**
+     * Returns the events filtered by {@link #actionId()}
+     */
+    protected List<Event> getEvents(List<Event> events) {
+        return events.stream().filter(e -> Objects.equals(e.actionId(), actionId())).collect(Collectors.toList());
     }
 
 

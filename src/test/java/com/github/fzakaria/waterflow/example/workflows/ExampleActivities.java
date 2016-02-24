@@ -75,5 +75,14 @@ public  class ExampleActivities extends Activities {
         return null;
     }
 
+    private static final LongAdder count = new LongAdder();
+    @ActivityMethod(name = "PassesModuloThree", version = "1.0")
+    public Integer PassesModuloThree(Integer input) {
+        count.increment();
+        if (count.longValue() % 3 != 0) {
+            throw new IllegalStateException("I only pass on attempts modulo 3.");
+        }
+        return input;
+    }
 
 }

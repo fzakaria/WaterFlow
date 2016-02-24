@@ -3,8 +3,9 @@ package com.github.fzakaria.waterflow.action;
 import com.google.common.reflect.TypeToken;
 import org.immutables.value.Value;
 
+@Value.Style(typeAbstract = "_*", typeImmutableEnclosing = "*")
 @Value.Enclosing
-public class ActivityActions {
+public class _ActivityActions {
 
     @Value.Immutable
     public static abstract class StringActivityAction extends ActivityAction<String>{

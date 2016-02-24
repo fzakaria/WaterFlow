@@ -10,7 +10,7 @@ import org.immutables.value.Value;
 
 import java.util.concurrent.CompletionStage;
 
-import static com.github.fzakaria.waterflow.action.ImmutableActivityActions.IntegerActivityAction;
+import static com.github.fzakaria.waterflow.action.ActivityActions.IntegerActivityAction;
 
 /**
  * WaterFlow "Hello World" example workflow that does three activities one after the other and then completes.

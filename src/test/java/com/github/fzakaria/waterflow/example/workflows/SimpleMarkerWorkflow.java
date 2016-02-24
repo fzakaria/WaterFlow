@@ -12,7 +12,7 @@ import org.immutables.value.Value;
 
 import java.util.concurrent.CompletionStage;
 
-import static com.github.fzakaria.waterflow.action.ImmutableActivityActions.IntegerActivityAction;
+import static com.github.fzakaria.waterflow.action.ActivityActions.IntegerActivityAction;
 
 /**
  * This is a very simple demonstration of how you can record

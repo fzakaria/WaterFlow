@@ -4,10 +4,12 @@ import com.github.fzakaria.waterflow.Workflow;
 import com.github.fzakaria.waterflow.example.workflows.ExampleActivities;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableAdvancedInputWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableHeartbeatWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableRetryingActivityWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleMarkerWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableSimpleWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableThrowingWorkflow;
 import com.github.fzakaria.waterflow.example.workflows.ImmutableTimerWorkflow;
+import com.github.fzakaria.waterflow.example.workflows.ImmutableWaitForSignalWorkflow;
 import com.github.fzakaria.waterflow.poller.ActivityPollerPool;
 import com.github.fzakaria.waterflow.poller.DecisionPollerPool;
 import com.github.fzakaria.waterflow.poller.ImmutableActivityPollerPool;
@@ -46,7 +48,9 @@ public abstract class ActivityDecisionPollerPool {
                 ImmutableThrowingWorkflow.builder().dataConverter(config().dataConverter()).build(),
                 ImmutableSimpleMarkerWorkflow.builder().dataConverter(config().dataConverter()).build(),
                 ImmutableTimerWorkflow.builder().dataConverter(config().dataConverter()).build(),
-                ImmutableHeartbeatWorkflow.builder().dataConverter(config().dataConverter()).build()
+                ImmutableHeartbeatWorkflow.builder().dataConverter(config().dataConverter()).build(),
+                ImmutableWaitForSignalWorkflow.builder().dataConverter(config().dataConverter()).build(),
+                ImmutableRetryingActivityWorkflow.builder().dataConverter(config().dataConverter()).build()
         );
         return ImmutableDecisionPollerPool.builder().domain(config().domain())
                 .taskList(config().taskList())

@@ -10,7 +10,7 @@ import org.immutables.value.Value;
 
 import java.util.concurrent.CompletionStage;
 
-import static com.github.fzakaria.waterflow.action.ImmutableActivityActions.VoidActivityAction;
+import static com.github.fzakaria.waterflow.action.ActivityActions.VoidActivityAction;
 
 
 /**
