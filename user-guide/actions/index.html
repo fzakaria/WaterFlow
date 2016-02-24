@@ -4,17 +4,17 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="WaterFlow is a non-magical / easy to understand / JDK8 framework for use with https://aws.amazon.com/swf/">
+        
         <meta name="author" content="Farid Zakaria">
         
-        <link rel="shortcut icon" href="./img/favicon.ico">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
 
-	<title>WaterFlow</title>
+	<title>Actions - WaterFlow</title>
 
-        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="./css/font-awesome-4.5.0.css" rel="stylesheet">
-        <link href="./css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="./css/highlight.css">
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
@@ -43,7 +43,7 @@
             
 
             <!-- Main title -->
-            <a class="navbar-brand" href=".">WaterFlow</a>
+            <a class="navbar-brand" href="../..">WaterFlow</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -54,30 +54,30 @@
                 
                 
                     <li >
-                        <a href=".">Home</a>
+                        <a href="../..">Home</a>
                     </li>
                 
                 
                 
-                    <li class="dropdown">
+                    <li class="dropdown active">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">UserGuide <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             
 <li >
-    <a href="user-guide/getting-started/">Getting Started</a>
+    <a href="../getting-started/">Getting Started</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">Actions</a>
 </li>
 
                         
                             
 <li >
-    <a href="user-guide/actions/">Actions</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="user-guide/advanced/">Advanced</a>
+    <a href="../advanced/">Advanced</a>
 </li>
 
                         
@@ -92,7 +92,7 @@
                         
                             
 <li >
-    <a href="about/license/">License</a>
+    <a href="../../about/license/">License</a>
 </li>
 
                         
@@ -110,13 +110,13 @@
                     </a>
                 </li>
                 
-                    <li class="disabled">
-                        <a rel="next" >
+                    <li >
+                        <a rel="next" href="../getting-started/">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
-                    <li class="disabled">
-                        <a rel="prev" >
+                    <li >
+                        <a rel="prev" href="../advanced/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -138,15 +138,46 @@
 
         <div class="container">
             
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#actions">Actions</a></li>
+        
+            <li><a href="#activityaction">ActivityAction</a></li>
+        
+            <li><a href="#recordmarkeraction">RecordMarkerAction</a></li>
+        
+            <li><a href="#timeraction">TimerAction</a></li>
+        
+            <li><a href="#waitforsignalaction">WaitForSignalAction</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
 
-    <div class="row-fluid">
-      <div id="main-content" class="span12">
-        <h1 id="404-page-not-found" style="text-align: center">404</h1>
-        <p style="text-align: center"><strong>Page not found</strong></p>
-      </div>
-    </div>
+<h1 id="actions">Actions</h1>
+<p>Although <code>ActivityTask</code> may be the <em>bread &amp; butter</em> of the type of work you can schedule with SWF, there exists many more tools at your disposable.
+<code>WaterFlow</code> embraces the other actions and makes them available through the same interface you've come to known and love when orchestrating your Workflow/Decider. The following is a ongoing list and examples of the various actions supported by the framework.</p>
+<p>All actions ultimately rely on being called via the <code>public CompletionStage&lt;OutputType&gt; decide(DecisionContext decisionContext)</code> interface. During replay of the current decider with the current HistoryEvents, <code>WaterFlow</code> takes care of fulfilling the <code>CompletionStage</code> with any Throwable or Result if the action has completed.</p>
+<h2 id="activityaction">ActivityAction</h2>
+<p>A distributed asyncrhonous unit of work that you can call. Depending on the use of a <code>DataConverter</code> you can pass and return arbitrary complex POJOs.</p>
+<pre><code>@ActivityMethod(name = &quot;Hello World&quot;, version = &quot;1.0&quot;)
+public String helloWorld(String name) {
+    if (name == null) {
+        throw new IllegalArgumentException(&quot;You must provide a non null name!&quot;);
+    }
+    return String.format(&quot;Hello World %s&quot;, name);
+}
+</code></pre>
 
-
+<h2 id="recordmarkeraction">RecordMarkerAction</h2>
+<p>You can use markers to record events in the workflow execution history for application specific purposes. Markers are useful when you want to record custom information to help implement decider logic. For instance, another SWF framework <a href="https://github.com/Netflix/glisten">Glisten</a> uses markers to store log messages - which would give you a single view of all log messages that might have otherwise executed on different machines.</p>
+<h2 id="timeraction">TimerAction</h2>
+<p>A timer enables you to notify your decider when a certain amount of time has elapsed. This allows you to orchestrate delays in the workflow before proceeding with the next action.</p>
+<h2 id="waitforsignalaction">WaitForSignalAction</h2>
+<p>Signals enable you to inform a workflow execution of external events and inject information into a workflow execution while it is running. Workflows can either send or receive signals. This action, allows to orchestrate a workflow that <strong>waits</strong> for a particular signal to be received. One common application for waiting on a signal, might be to model some human interaction that needs to occur as part of the workflow.</p></div>
+            
         </div>
 
         <footer class="col-md-12">
@@ -157,12 +188,12 @@
             <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
 
-        <script src="./js/jquery-1.10.2.min.js"></script>
-        <script src="./js/bootstrap-3.0.3.min.js"></script>
-        <script src="./js/highlight.pack.js"></script>
-        <script>var base_url = '.';</script>
-        <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
-        <script src="./js/base.js"></script>
+        <script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
             <div class="modal-dialog">

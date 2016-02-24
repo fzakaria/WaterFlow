@@ -91,6 +91,61 @@
             "title": "Verifying The Results"
         }, 
         {
+            "location": "/user-guide/actions/", 
+            "text": "Actions\n\n\nAlthough \nActivityTask\n may be the \nbread \n butter\n of the type of work you can schedule with SWF, there exists many more tools at your disposable.\n\nWaterFlow\n embraces the other actions and makes them available through the same interface you've come to known and love when orchestrating your Workflow/Decider. The following is a ongoing list and examples of the various actions supported by the framework.\n\n\nAll actions ultimately rely on being called via the \npublic CompletionStage\nOutputType\n decide(DecisionContext decisionContext)\n interface. During replay of the current decider with the current HistoryEvents, \nWaterFlow\n takes care of fulfilling the \nCompletionStage\n with any Throwable or Result if the action has completed.\n\n\nActivityAction\n\n\nA distributed asyncrhonous unit of work that you can call. Depending on the use of a \nDataConverter\n you can pass and return arbitrary complex POJOs.\n\n\n@ActivityMethod(name = \nHello World\n, version = \n1.0\n)\npublic String helloWorld(String name) {\n    if (name == null) {\n        throw new IllegalArgumentException(\nYou must provide a non null name!\n);\n    }\n    return String.format(\nHello World %s\n, name);\n}\n\n\n\n\nRecordMarkerAction\n\n\nYou can use markers to record events in the workflow execution history for application specific purposes. Markers are useful when you want to record custom information to help implement decider logic. For instance, another SWF framework \nGlisten\n uses markers to store log messages - which would give you a single view of all log messages that might have otherwise executed on different machines.\n\n\nTimerAction\n\n\nA timer enables you to notify your decider when a certain amount of time has elapsed. This allows you to orchestrate delays in the workflow before proceeding with the next action.\n\n\nWaitForSignalAction\n\n\nSignals enable you to inform a workflow execution of external events and inject information into a workflow execution while it is running. Workflows can either send or receive signals. This action, allows to orchestrate a workflow that \nwaits\n for a particular signal to be received. One common application for waiting on a signal, might be to model some human interaction that needs to occur as part of the workflow.", 
+            "title": "Actions"
+        }, 
+        {
+            "location": "/user-guide/actions/#actions", 
+            "text": "Although  ActivityTask  may be the  bread   butter  of the type of work you can schedule with SWF, there exists many more tools at your disposable. WaterFlow  embraces the other actions and makes them available through the same interface you've come to known and love when orchestrating your Workflow/Decider. The following is a ongoing list and examples of the various actions supported by the framework.  All actions ultimately rely on being called via the  public CompletionStage OutputType  decide(DecisionContext decisionContext)  interface. During replay of the current decider with the current HistoryEvents,  WaterFlow  takes care of fulfilling the  CompletionStage  with any Throwable or Result if the action has completed.", 
+            "title": "Actions"
+        }, 
+        {
+            "location": "/user-guide/actions/#activityaction", 
+            "text": "A distributed asyncrhonous unit of work that you can call. Depending on the use of a  DataConverter  you can pass and return arbitrary complex POJOs.  @ActivityMethod(name =  Hello World , version =  1.0 )\npublic String helloWorld(String name) {\n    if (name == null) {\n        throw new IllegalArgumentException( You must provide a non null name! );\n    }\n    return String.format( Hello World %s , name);\n}", 
+            "title": "ActivityAction"
+        }, 
+        {
+            "location": "/user-guide/actions/#recordmarkeraction", 
+            "text": "You can use markers to record events in the workflow execution history for application specific purposes. Markers are useful when you want to record custom information to help implement decider logic. For instance, another SWF framework  Glisten  uses markers to store log messages - which would give you a single view of all log messages that might have otherwise executed on different machines.", 
+            "title": "RecordMarkerAction"
+        }, 
+        {
+            "location": "/user-guide/actions/#timeraction", 
+            "text": "A timer enables you to notify your decider when a certain amount of time has elapsed. This allows you to orchestrate delays in the workflow before proceeding with the next action.", 
+            "title": "TimerAction"
+        }, 
+        {
+            "location": "/user-guide/actions/#waitforsignalaction", 
+            "text": "Signals enable you to inform a workflow execution of external events and inject information into a workflow execution while it is running. Workflows can either send or receive signals. This action, allows to orchestrate a workflow that  waits  for a particular signal to be received. One common application for waiting on a signal, might be to model some human interaction that needs to occur as part of the workflow.", 
+            "title": "WaitForSignalAction"
+        }, 
+        {
+            "location": "/user-guide/advanced/", 
+            "text": "Throwables\n\n\n\n\nTO DO\n\n\n\n\nHeartbeat\n\n\n\n\nTO DO\n\n\n\n\nRetries\n\n\n\n\nTO DO\n\n\n\n\nDataConverters\n\n\nThe \nWaterFlow\n framework marshals data across activities \n deciders by using a \nDataConverter\n. By default, the framework offers a data converter that is based on the Jackson JSON processor - similar to the \nAWS Flow Framework\n.\n\n\nIf the default converter isn't sufficient for your application, you can implement a custom data converter. A good example is offering a \nDataConverter\n that might encrypt/decrypt data sent over the wire or marshalling data through \nS3\n to overcome the size limitation of the fields put in palce by SWF", 
+            "title": "Advanced"
+        }, 
+        {
+            "location": "/user-guide/advanced/#throwables", 
+            "text": "TO DO", 
+            "title": "Throwables"
+        }, 
+        {
+            "location": "/user-guide/advanced/#heartbeat", 
+            "text": "TO DO", 
+            "title": "Heartbeat"
+        }, 
+        {
+            "location": "/user-guide/advanced/#retries", 
+            "text": "TO DO", 
+            "title": "Retries"
+        }, 
+        {
+            "location": "/user-guide/advanced/#dataconverters", 
+            "text": "The  WaterFlow  framework marshals data across activities   deciders by using a  DataConverter . By default, the framework offers a data converter that is based on the Jackson JSON processor - similar to the  AWS Flow Framework .  If the default converter isn't sufficient for your application, you can implement a custom data converter. A good example is offering a  DataConverter  that might encrypt/decrypt data sent over the wire or marshalling data through  S3  to overcome the size limitation of the fields put in palce by SWF", 
+            "title": "DataConverters"
+        }, 
+        {
             "location": "/about/license/", 
             "text": "The MIT License (MIT)\n\n\nCopyright \u00a9 \n2016\n \nFarid Zakaria\n\n\nPermission is hereby granted, free of charge, to any person\nobtaining a copy of this software and associated documentation\nfiles (the \u201cSoftware\u201d), to deal in the Software without\nrestriction, including without limitation the rights to use,\ncopy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following\nconditions:\n\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\n\nTHE SOFTWARE IS PROVIDED \u201cAS IS\u201d, WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES\nOF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT\nHOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nWHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR\nOTHER DEALINGS IN THE SOFTWARE.", 
             "title": "License"
