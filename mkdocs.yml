@@ -7,7 +7,7 @@ site_author: 'Farid Zakaria'
 copyright: '2016 Farid Zakaria'
 pages:
 - Home: index.md
-- About:
-  - 'License': 'about/license.md'
 - UserGuide:
   - 'Getting Started': 'user-guide/getting-started.md'
+- About:
+  - 'License': 'about/license.md'
