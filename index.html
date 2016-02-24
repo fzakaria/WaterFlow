@@ -60,6 +60,21 @@
                 
                 
                     <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">UserGuide <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="user-guide/getting-started/">Getting Started</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
@@ -89,7 +104,7 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="about/license/">
+                        <a rel="prev" href="user-guide/getting-started/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -125,7 +140,22 @@
 
 <h1 id="welcome-to-waterflow">Welcome to WaterFlow</h1>
 <p>WaterFlow is a non-magical / easy to understand / JDK8 framework for use with <a href="https://aws.amazon.com/swf/">Simple Workflow Service</a></p>
-<h2 id="philosophy">Philosophy</h2></div>
+<h2 id="philosophy">Philosophy</h2>
+<blockquote>
+<p>The framework is deeply routed in the original implementation of <a href="https://bitbucket.org/clarioanalytics/services-swift">SWiFt</a> which is a great example of achieving a very usable and simple SWF framework.</p>
+</blockquote>
+<p>SWF is a great AWS service allowing the ability to implement distributed, asynchronous applications as workflows. The interesting part of SWF is that its easy to integrate with various <em>in-house</em> solutions, since the various actors necessary to operate with the service can operate onsite (only execution history is stored in the "cloud")</p>
+<p>The difficulty lies in writing robust, easy and composable workflows. SWF offers the <a href="https://aws.amazon.com/swf/details/flow/">Flow Framework</a> which is a is a collection of convenience libraries that make it faster and easier to build applications with Amazon Simple Workflow on the JVM. The problem we've found however is that there is just too much <strong>darn magic</strong> !</p>
+<h3 id="no-magic-wysiwyg">No magic - WYSIWYG</h3>
+<p>A key tenant to the <code>WaterFlow</code> framework is the removal of much of the magic present in competing frameworks, while still providing many of the same features. Many times this might lead to code that is <em>slightly</em> more verbose, however you are presented with a <a href="https://en.wikipedia.org/wiki/WYSIWYG">WYSIWYG</a> experience.</p>
+<h3 id="immutability">Immutability</h3>
+<p>The <code>WateFlow</code> framework makes, <strong>heavy</strong> use of the <a href="https://immutables.github.io/">Immutables</a> library, and so should you! Since typically you might run multiple JVM instances of a particular actor (deciders &amp; activity workers) and each JVM might run several threads - its much easier to think about the underlying primitives knowing they are <a href="https://docs.oracle.com/javase/tutorial/essential/concurrency/immutable.html">immutable</a>.</p>
+<h3 id="simple-deciders">Simple Deciders</h3>
+<p>Deciders are the actors that coordinate the logic of the current workflow by scheduling various actions - such as Activities. The concept of scheduling a future asyncrhonous computation and writing it in a very functional manner is well understood through various <em>Ayncrhonous Programming Patterns</em>. <code>WaterFlow</code> leverages well known standard interfaces - <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html">CompletionStage</a> - to help making complicated deciders.</p>
+<h3 id="functional-jdk8">Functional / JDK8</h3>
+<p>By embracing the <code>JDK8</code>, much of the code is written in a very functional manner.</p>
+<h3 id="tested">Tested</h3>
+<p>The framework includes many <strong>unit</strong> and <strong>integration</strong> tests. These tests serve as great self-documentation - in addition to this site.</p></div>
             
         </div>
 
@@ -174,5 +204,5 @@
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-02-24 17:32:05.542911
+Build Date UTC : 2016-02-24 20:05:21.469887
 -->

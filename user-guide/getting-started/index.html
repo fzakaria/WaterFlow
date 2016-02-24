@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <meta name="author" content="Farid Zakaria">
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+
+	<title>Getting Started - WaterFlow</title>
+
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">WaterFlow</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">UserGuide <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li class="active">
+    <a href="./">Getting Started</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../about/license/">License</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                    <li >
+                        <a rel="next" href="../..">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../../about/license/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/fzakaria/WaterFlow">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#getting-started">Getting Started</a></li>
+        
+            <li><a href="#requirements">Requirements</a></li>
+        
+            <li><a href="#installation">Installation</a></li>
+        
+            <li><a href="#helloworldworkflow">HelloWorldWorkFlow</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="getting-started">Getting Started</h1>
+<p>The following tutorial will walk you through a very brief introduction to installing <code>WaterFlow</code> and writing your first
+<code>HelloWorldWorkflow</code>.</p>
+<p>For more advanced workflows and additional information consult the user-guide.</p>
+<h2 id="requirements">Requirements</h2>
+<ol>
+<li>Java 1.8+</li>
+<li>Active <code>Amazon Web Services</code> account<ul>
+<li>AWS credentials must have full access to the SWF service</li>
+</ul>
+</li>
+<li>Understanding of Amazon Simple Workflow concepts and the Amazon AWS SDK for Java</li>
+</ol>
+<h2 id="installation">Installation</h2>
+<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;com.github.fzakaria&lt;/groupId&gt;
+    &lt;artifactId&gt;WaterFlow&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+
+<h2 id="helloworldworkflow">HelloWorld<em>WorkFlow</em></h2>
+<p>The following is a short tutorial on building a Maven application using <code>WaterFlow</code>. It is a very high level overview and additional information can be found in accompanying sections of the user-guide.</p>
+<p>You can find the code listed below on <a href="https://github.com/fzakaria/WaterFlow">GitHub</a></p>
+<h3 id="setup">Setup</h3>
+<p>We will assume a <a href="https://maven.apache.org">maven</a> setup, however the only difference is transitioning the <code>pom.xml</code> to the build tool of your choice.</p>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;FILL ME IN/groupId&gt;
+    &lt;artifactId&gt;FILL ME IN/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+
+    &lt;properties&gt;
+        &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+        &lt;immutables.version&gt;2.1.11&lt;/immutables.version&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.immutables&lt;/groupId&gt;
+            &lt;artifactId&gt;value&lt;/artifactId&gt;
+            &lt;version&gt;${immutables.version}&lt;/version&gt;
+            &lt;scope&gt;provided&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.github.fzakaria&lt;/groupId&gt;
+            &lt;artifactId&gt;WaterFlow&lt;/artifactId&gt;
+            &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;ch.qos.logback&lt;/groupId&gt;
+            &lt;artifactId&gt;logback-classic&lt;/artifactId&gt;
+            &lt;version&gt;1.1.5&lt;/version&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;
+
+&lt;/project&gt;
+</code></pre>
+
+<h3 id="activities">Activities</h3>
+<p>The bread and butter of actions in SWF are the <a href="http://docs.aws.amazon.com/amazonswf/latest/apireference/API_ActivityTask.html">ActivityTasks</a>, which represent a unit of asyncrhonous work. Activities can exist in any class that subclasses <code>Activities</code> and annotated with <code>ActivityMethod</code></p>
+<pre><code class="java">public class ExampleActivities extends Activities {
+
+    @ActivityMethod(name = &quot;Hello World&quot;, version = &quot;1.0&quot;)
+    public String helloWorld(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException(&quot;You must provide a non null name!&quot;);
+        }
+        return String.format(&quot;Hello World %s&quot;, name);
+    }
+
+}
+</code></pre>
+
+<p>In the example above, we've created a very simple <code>ActivityTask</code> which given an input string, appends it to a <em>Hello World</em> message. The example above is working solely with input/output of <strong>String</strong> however you are not limited to that! We will see in the following documentation that thanks to the <code>DataConverter</code> we can pass arbitrary complex types to/from our Activities.</p>
+<h3 id="workflow">Workflow</h3>
+<p>The workflow class in the framework represents the <code>Decider</code>. Through the interface <code>public CompletionStage decide(DecisionContext decisionContext)</code> the Workflow can orchestrate the future actions that need to occur for the workflow given the previous history.</p>
+<p>The example below is a simple example of implementing the Workflow interface. Each workflow has an associated name and version which is important when decided which instance the decider needs to find. As you can see in the <code>decide</code> method, orchestrating future tasks is as simple as using the JDK8 interface for <code>CompletionStage</code>.</p>
+<pre><code class="java">@Value.Immutable
+public class HelloWorldWorkflow extends Workflow&lt;String,String&gt; {
+
+    @Override
+    public Name name() {
+        return Name.of(&quot;Hello World&quot;);
+    }
+
+    @Override
+    public Version version() {
+        return Version.of(&quot;1.0&quot;);
+    }
+
+    @Override
+    public TypeToken&lt;String&gt; inputType() {
+        return TypeToken.of(String.class);
+    }
+
+    @Override
+    public TypeToken&lt;String&gt; outputType() {
+        return TypeToken.of(String.class);
+    }
+
+    @Override
+    public DataConverter dataConverter() {
+        return ImmutableJacksonDataConverter.builder().build();
+    }
+
+    final StringActivityAction step1 = StringActivityAction.builder().actionId(ActionId.of(&quot;step1&quot;))
+            .name(Name.of(&quot;Hello World&quot;)).version(Version.of(&quot;1.0&quot;)).workflow(this).build();
+
+    @Override
+    public CompletionStage decide(DecisionContext decisionContext) {
+        CompletionStage&lt;String&gt; input = workflowInput(decisionContext.events());
+
+        return input.thenCompose(i -&gt; step1.withInput(i).decide(decisionContext));
+
+    }
+
+    //Run me to submit this workflow!
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Config config = new Config();
+        HelloWorldWorkflow workflow = ImmutableHelloWorldWorkflow.builder()
+                .description(Description.of(&quot;Starting my first workflow!&quot;)).build();
+        config.submit(workflow, &quot;Jane Doe&quot;);
+    }
+}
+</code></pre>
+
+<p>We've provided a helpful <code>main</code> method that you can launch that will submit a new instance of this workflow!</p>
+<h3 id="actors-deciders-and-activity-workers">Actors - Deciders and Activity Workers</h3>
+<p>You get to decide the composition of the actors. You can scale the deciders and acivity workers seperately and arrange how each one is configured when polling a particular <code>TaskList</code> or <code>Domain</code>. For the purposes of this example, we demonstrate a basic setup that initiates both <code>Activity Workers</code> and <code>Deciders</code> as separate threads on the same JVM.</p>
+<pre><code class="java">public class ActivityDecisionPollerPool {
+
+    protected static final Logger log = LoggerFactory.getLogger(ActivityDecisionPollerPool.class);
+
+    private final Config config = new Config();
+
+    private final  ActivityPollerPool activityPollerPool =
+            ImmutableActivityPollerPool.builder().domain(config.domain)
+                .taskList(config.taskListName)
+                .service(new ScheduledThreadPoolExecutor(config.numberOfWorkers))
+                .swf(config.swf)
+                .dataConverter(config.dataConverter)
+                .addActivities(new HelloWorldActivities()).build();
+
+    private final  DecisionPollerPool decisionPollerPool =
+            ImmutableDecisionPollerPool.builder().domain(config.domain)
+                    .taskList(config.taskListName)
+                    .service(new ScheduledThreadPoolExecutor(config.numberOfWorkers))
+                    .swf(config.swf)
+                    .dataConverter(config.dataConverter)
+                    .workflows(Lists.newArrayList(new HelloWorldWorkflow())).build();
+
+
+    public void start() {
+        activityPollerPool.start();
+        decisionPollerPool.start();
+    }
+
+    public void stop() {
+        activityPollerPool.stop();
+        decisionPollerPool.stop();
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        ActivityDecisionPollerPool activityAndDecisionPollerPool =
+                new ActivityDecisionPollerPool();
+
+        activityAndDecisionPollerPool.start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                log.info(&quot;Shutting down pool and exiting.&quot;);
+                activityAndDecisionPollerPool.stop();
+            }
+        });
+        log.info(&quot;activity pollers started:&quot;);
+    }
+}
+</code></pre>
+
+<p>For the purposes of this demonstrates, the configuration is hard configured in a POJO. However not much is needed to change the <code>Config</code> class to something that is wired by your favourite Dependency Injection framework (i.e. Guice or Spring)</p>
+<pre><code class="java">
+public class Config {
+
+    public final Domain domain = Domain.of(&quot;swift&quot;);
+
+    public final TaskListName taskListName = SwfConstants.DEFAULT_TASK_LIST;
+
+    public final Integer numberOfWorkers = 2;
+
+    public final DataConverter dataConverter = ImmutableJacksonDataConverter.builder().build();
+
+    //SWF holds the connection for 60 seconds to see if a decision is available
+    final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofSeconds(60);
+    final Duration DEFAULT_SOCKET_TIMEOUT = DEFAULT_CONNECTION_TIMEOUT.plusSeconds(10);
+    public final AmazonSimpleWorkflow swf =  new AmazonSimpleWorkflowClient(new DefaultAWSCredentialsProviderChain(),
+            new ClientConfiguration().withConnectionTimeout((int) DEFAULT_CONNECTION_TIMEOUT.toMillis())
+                    .withSocketTimeout((int) DEFAULT_SOCKET_TIMEOUT.toMillis()));
+
+    public WorkflowExecution submit(Workflow workflow, WorkflowId workflowId, Optional&lt;Object&gt; input) {
+        Optional&lt;Input&gt; inputOptional = input.map( i -&gt; dataConverter.toData(i)).map(Input::of);
+
+        StartWorkflowExecutionRequest request =
+                WorkflowExecutionRequestBuilder.builder().domain(domain)
+                        .workflow(workflow).input(inputOptional)
+                        .taskList(taskListName).workflowId(workflowId).build();
+
+        Run run = swf.startWorkflowExecution(request);
+        return new WorkflowExecution().withWorkflowId(workflowId.value()).withRunId(run.getRunId());
+    }
+
+    public &lt;I, O&gt; WorkflowExecution submit(Workflow&lt;I,O&gt; workflow, I input) {
+        WorkflowId workflowId = WorkflowId.randomUniqueWorkflowId(workflow);
+        return submit(workflow, workflowId, Optional.ofNullable(input));
+    }
+}
+</code></pre>
+
+<h3 id="verifying-the-results">Verifying The Results</h3>
+<p>We can use the <code>aws cli</code> tool or the SWF dashboard to verify our results!
+Scroll <strong>down</strong> to the bottom until you see the <code>WorkflowExecutionCompleted</code> and check out the result!</p>
+<pre><code class="json">{
+  &quot;events&quot;: [
+    {
+      &quot;eventId&quot;: 1,
+      &quot;eventType&quot;: &quot;WorkflowExecutionStarted&quot;,
+      &quot;workflowExecutionStartedEventAttributes&quot;: {
+        &quot;taskList&quot;: {
+          &quot;name&quot;: &quot;DEFAULT&quot;
+        },
+        &quot;parentInitiatedEventId&quot;: 0,
+        &quot;taskStartToCloseTimeout&quot;: &quot;60&quot;,
+        &quot;childPolicy&quot;: &quot;TERMINATE&quot;,
+        &quot;executionStartToCloseTimeout&quot;: &quot;30758400&quot;,
+        &quot;input&quot;: &quot;\&quot;Jane Doe\&quot;&quot;,
+        &quot;workflowType&quot;: {
+          &quot;version&quot;: &quot;1.0&quot;,
+          &quot;name&quot;: &quot;Hello World&quot;
+        }
+      },
+      &quot;eventTimestamp&quot;: 1456343145.567
+    },
+    {
+      &quot;eventId&quot;: 2,
+      &quot;eventType&quot;: &quot;DecisionTaskScheduled&quot;,
+      &quot;decisionTaskScheduledEventAttributes&quot;: {
+        &quot;startToCloseTimeout&quot;: &quot;60&quot;,
+        &quot;taskList&quot;: {
+          &quot;name&quot;: &quot;DEFAULT&quot;
+        }
+      },
+      &quot;eventTimestamp&quot;: 1456343145.567
+    },
+    {
+      &quot;eventId&quot;: 3,
+      &quot;eventType&quot;: &quot;DecisionTaskStarted&quot;,
+      &quot;eventTimestamp&quot;: 1456343145.654,
+      &quot;decisionTaskStartedEventAttributes&quot;: {
+        &quot;scheduledEventId&quot;: 2,
+        &quot;identity&quot;: &quot;DECIDER-0&quot;
+      }
+    },
+    {
+      &quot;eventId&quot;: 4,
+      &quot;eventType&quot;: &quot;DecisionTaskTimedOut&quot;,
+      &quot;decisionTaskTimedOutEventAttributes&quot;: {
+        &quot;startedEventId&quot;: 3,
+        &quot;timeoutType&quot;: &quot;START_TO_CLOSE&quot;,
+        &quot;scheduledEventId&quot;: 2
+      },
+      &quot;eventTimestamp&quot;: 1456343205.66
+    },
+    {
+      &quot;eventId&quot;: 5,
+      &quot;eventType&quot;: &quot;DecisionTaskScheduled&quot;,
+      &quot;decisionTaskScheduledEventAttributes&quot;: {
+        &quot;startToCloseTimeout&quot;: &quot;60&quot;,
+        &quot;taskList&quot;: {
+          &quot;name&quot;: &quot;DEFAULT&quot;
+        }
+      },
+      &quot;eventTimestamp&quot;: 1456343205.66
+    },
+    {
+      &quot;eventId&quot;: 6,
+      &quot;eventType&quot;: &quot;DecisionTaskStarted&quot;,
+      &quot;eventTimestamp&quot;: 1456343205.708,
+      &quot;decisionTaskStartedEventAttributes&quot;: {
+        &quot;scheduledEventId&quot;: 5,
+        &quot;identity&quot;: &quot;DECIDER-0&quot;
+      }
+    },
+    {
+      &quot;eventId&quot;: 7,
+      &quot;eventType&quot;: &quot;DecisionTaskCompleted&quot;,
+      &quot;decisionTaskCompletedEventAttributes&quot;: {
+        &quot;startedEventId&quot;: 6,
+        &quot;scheduledEventId&quot;: 5
+      },
+      &quot;eventTimestamp&quot;: 1456343206.078
+    },
+    {
+      &quot;eventId&quot;: 8,
+      &quot;eventType&quot;: &quot;ActivityTaskScheduled&quot;,
+      &quot;activityTaskScheduledEventAttributes&quot;: {
+        &quot;taskList&quot;: {
+          &quot;name&quot;: &quot;DEFAULT&quot;
+        },
+        &quot;scheduleToCloseTimeout&quot;: &quot;NONE&quot;,
+        &quot;activityType&quot;: {
+          &quot;version&quot;: &quot;1.0&quot;,
+          &quot;name&quot;: &quot;Hello World&quot;
+        },
+        &quot;decisionTaskCompletedEventId&quot;: 7,
+        &quot;heartbeatTimeout&quot;: &quot;NONE&quot;,
+        &quot;activityId&quot;: &quot;step1&quot;,
+        &quot;scheduleToStartTimeout&quot;: &quot;NONE&quot;,
+        &quot;startToCloseTimeout&quot;: &quot;NONE&quot;,
+        &quot;input&quot;: &quot;[ \&quot;[Ljava.lang.Object;\&quot;, [ \&quot;Jane Doe\&quot; ] ]&quot;
+      },
+      &quot;eventTimestamp&quot;: 1456343206.078
+    },
+    {
+      &quot;eventId&quot;: 9,
+      &quot;eventType&quot;: &quot;ActivityTaskStarted&quot;,
+      &quot;eventTimestamp&quot;: 1456343206.185,
+      &quot;activityTaskStartedEventAttributes&quot;: {
+        &quot;scheduledEventId&quot;: 8,
+        &quot;identity&quot;: &quot;ACTIVITY-0&quot;
+      }
+    },
+    {
+      &quot;eventId&quot;: 10,
+      &quot;eventType&quot;: &quot;ActivityTaskCompleted&quot;,
+      &quot;activityTaskCompletedEventAttributes&quot;: {
+        &quot;startedEventId&quot;: 9,
+        &quot;scheduledEventId&quot;: 8,
+        &quot;result&quot;: &quot;\&quot;Hello World Jane Doe!\&quot;&quot;
+      },
+      &quot;eventTimestamp&quot;: 1456343206.39
+    },
+    {
+      &quot;eventId&quot;: 11,
+      &quot;eventType&quot;: &quot;DecisionTaskScheduled&quot;,
+      &quot;decisionTaskScheduledEventAttributes&quot;: {
+        &quot;startToCloseTimeout&quot;: &quot;60&quot;,
+        &quot;taskList&quot;: {
+          &quot;name&quot;: &quot;DEFAULT&quot;
+        }
+      },
+      &quot;eventTimestamp&quot;: 1456343206.39
+    },
+    {
+      &quot;eventId&quot;: 12,
+      &quot;eventType&quot;: &quot;DecisionTaskStarted&quot;,
+      &quot;eventTimestamp&quot;: 1456343206.45,
+      &quot;decisionTaskStartedEventAttributes&quot;: {
+        &quot;scheduledEventId&quot;: 11,
+        &quot;identity&quot;: &quot;DECIDER-1&quot;
+      }
+    },
+    {
+      &quot;eventId&quot;: 13,
+      &quot;eventType&quot;: &quot;DecisionTaskCompleted&quot;,
+      &quot;decisionTaskCompletedEventAttributes&quot;: {
+        &quot;startedEventId&quot;: 12,
+        &quot;scheduledEventId&quot;: 11
+      },
+      &quot;eventTimestamp&quot;: 1456343206.621
+    },
+    {
+      &quot;eventId&quot;: 14,
+      &quot;eventType&quot;: &quot;WorkflowExecutionCompleted&quot;,
+      &quot;workflowExecutionCompletedEventAttributes&quot;: {
+        &quot;result&quot;: &quot;\&quot;Hello World Jane Doe!\&quot;&quot;,
+        &quot;decisionTaskCompletedEventId&quot;: 13
+      },
+      &quot;eventTimestamp&quot;: 1456343206.621
+    }
+  ]
+}
+</code></pre></div>
+            
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+                <p>2016 Farid Zakaria</p>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        <script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>
