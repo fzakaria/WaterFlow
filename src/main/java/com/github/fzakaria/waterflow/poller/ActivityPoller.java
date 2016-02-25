@@ -123,10 +123,12 @@ public abstract class ActivityPoller extends BasePoller<ActivityTask> {
                 log.info("'{}' '{}' '{}' -> '{}'", task.getActivityId(), key, input, result);
                 swf().respondActivityTaskCompleted(createRespondActivityCompleted(task, result));
             } else {
-                String reason = format("Activity '%s' not registered on poller %s", task, name());
+                String reason = format("Activity '%s' not registered on poller %s", key, name());
                 log.error(reason);
+                Throwable cause = new IllegalStateException(reason);
+                String details = dataConverter().toData(cause);
                 swf().respondActivityTaskFailed(
-                        createRespondActivityTaskFailed(task.getTaskToken(), reason, null)
+                        createRespondActivityTaskFailed(task.getTaskToken(), reason, details)
                 );
             }
         } catch (Throwable e) {
