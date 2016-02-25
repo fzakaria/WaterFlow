@@ -12,6 +12,21 @@ During Activity registration (occurs automatically at the start of the `Activity
 All ActivityMethods must be present in a class that subclasses from `com.github.fzakaria.waterflow.Activities` which includes the *protected* method
 `protected void recordHeartbeat(String details)`
 
+```java
+@ActivityMethod(name = "Heartbeat Example", version = "1.0", heartbeatTimeout = "5")
+public Void heartbeatExample() throws InterruptedException{
+    final LongAdder adder = new LongAdder();
+    final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+    service.scheduleAtFixedRate(() -> {
+        adder.increment();
+        recordHeartbeat(format("This is the %s heartbeat", adder.intValue()));
+    }, 0, 1, TimeUnit.SECONDS);
+    Thread.sleep(Duration.ofSeconds(10).toMillis());
+    service.shutdownNow();
+    return null;
+}
+```
+
 Higher level abstractions may find it necessary to wrap the heartbeat functionality in a [Watch Dog Thread](https://en.wikipedia.org/wiki/Watchdog_timer).
 
 ## Retries
@@ -30,7 +45,7 @@ Several strategies are included in the framework:
 5. MaxLimitRetryStrategy
 6. FixedDelayRetryStrategy
 
-```
+```java
 final IntegerActivityAction step1 = IntegerActivityAction.builder()
             .actionId(ActionId.of("step1")).retryStrategy(new FixedDelayRetryStrategy(Duration.ofSeconds(3)))
             .name(Name.of("Hello World")).version(Version.of("1.0")).workflow(this).build();
