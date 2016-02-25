@@ -5,6 +5,28 @@ Things don't always go as planned and neither do your `ActivityTask`. Through th
 
 A common scenario may be that you would want to run some cleanup actions if an exception is thrown.
 
+```java
+@Override
+public CompletionStage<String> decide(DecisionContext decisionContext) {
+    CompletionStage<String> input = workflowInput(decisionContext.events());
+
+    return input.thenCompose(i -> step1.withInput(i).decide(decisionContext)).handle((r, t) -> {
+        if (t != null) {
+            CompletionStage<String> resultDefault = step1.withActionId(ActionId.of("step1-default"))
+                    .withInput("Default Name").decide(decisionContext);
+
+            return step2.withInput((Object) new String[]{"I am missing name."}).decide(decisionContext)
+                    .thenCompose(v -> resultDefault);
+        }
+        return CompletableFuture.completedFuture(r);
+    }).thenCompose(x -> x);
+
+}
+```
+In the above example, perhaps, the first invocation of `step1` throws an exception.  We might now want to rerun `step1` (or any other ActivityTask) as a result. `CompletionStage` offered by the JDK8 is not the most *eloquent* beat, and I am considering replacing it with a Future/Promise library that is more monadic such as from [javaslang](http://www.javaslang.io/)
+
+>In this particular case don't forget the `withActionId` since you need to change the name of the previous step.
+
 ## Heartbeat
 
 During Activity registration (occurs automatically at the start of the `ActivityPollerPool`) a `taskHeartbeatTimeout` is set. The `taskHeartbeatTimeout` is defined as the longest time an `AcitivityTask` may perform work before either responding with the result or heartbeat. For activities that run extra long (since a Workflow is allowed to run for up to 1 year!) you'll need to periodically send heartbeats during the Acitvity.
