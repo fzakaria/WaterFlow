@@ -10,6 +10,7 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.immutables.value.Value;
 
 import javax.annotation.Nonnull;
@@ -55,7 +56,7 @@ public abstract class JacksonDataConverter implements DataConverter {
     @Override
     public <T> T fromData(String input, @Nonnull Type type) throws DataConverterException {
         Preconditions.checkNotNull(type);
-        if (input == null) {
+        if (Strings.isNullOrEmpty(input)) {
             return null;
         }
 
